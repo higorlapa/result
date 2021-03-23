@@ -1,14 +1,77 @@
-# result
+# Result
 
-Result package for Flutter
+Result package for dart inspired by the work of [dartz](https://pub.dev/packages/dartz)'s Either and Kotlin's sealed classes.
 
-## Getting Started
+This package is perfect to those of you who just want the Multiple results
+functionality from dartz. 👌
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+## How to use it
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+In the return of a function, set it to return a Result type;
+```dart
+Result getSomethingPretty();
+```
+then add the Error and the Success types.
+
+```dart
+
+Result<Exception, String> getSomethingPretty() {
+
+}
+
+```
+
+in return of the function, you just need to return
+```dart
+return Success("Something Pretty");
+```
+
+or
+
+```dart
+return Error(Exception("something ungly happened..."));
+```
+
+The function should look something like this:
+
+```dart
+
+Result<Exception, String> getSomethingPretty() {
+    if(isOk) {
+        return Success("OK!");
+    } else {
+        return Error(Exception("Not Ok!"));
+    }
+}
+
+```
+
+#### Handling the Result with `when`
+
+```dart
+void main() {
+    final result = getSomethingPretty();
+     result.when((error) {
+      // handle the error here
+      print(error);
+    }, (success) {
+      // handle the success here
+      print(success);
+    });
+}
+```
+
+
+#### Handling the Result with `get`
+
+```dart
+void main() {
+    final result = getSomethingPretty();
+
+    String? mySuccessResult;
+    if (result.isSuccess()) {
+      mySuccessResult = result.get();
+    }
+}
+```
+
