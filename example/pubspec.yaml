@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  result:
+    path: ../
 dev_dependencies:
   flutter_test:
     sdk: flutter
