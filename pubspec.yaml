@@ -1,0 +1,13 @@
+name: result
+description: Result package for Flutter
+version: 1.0.0
+author: higorlapaa@gmail.com
+homepage:
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+
+dev_dependencies:
+  test: any
