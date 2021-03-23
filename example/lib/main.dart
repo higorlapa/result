@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:result/result.dart';
+import 'package:multiple_result/result.dart';
 
 void main() {
   runApp(MyApp());
