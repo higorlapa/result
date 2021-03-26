@@ -1,4 +1,4 @@
-## [1.0.0] - 03/26/2021
+## [1.0.1] - 03/26/2021
 
 * Adds documentation
 * Changes library to multiple_result
