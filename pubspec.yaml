@@ -1,6 +1,6 @@
 name: multiple_result
-description: Result package for Flutter
-version: 1.0.0
+description: Multiple results for flutter. Inspired by dartz's Either
+version: 1.0.1
 author: higorlapaa@gmail.com
 homepage: https://github.com/higorlapa/result
 
@@ -11,3 +11,4 @@ dependencies:
 
 dev_dependencies:
   test: any
+  effective_dart: ^1.3.1

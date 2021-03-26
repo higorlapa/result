@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          final result = _increment(_counter);
+          final result = _shouldIncrement(_counter);
           if (result.isSuccess()) {
             setState(() {
               _counter++;
@@ -68,11 +68,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Result<IncrementException, int> _increment(int currentCount) {
+  Result<IncrementException, bool> _shouldIncrement(int currentCount) {
     if (currentCount + 1 == 10) {
       return Error(IncrementException("counter can't be bigger than 9"));
     } else {
-      return Success(currentCount++);
+      return Success(true);
     }
   }
 }

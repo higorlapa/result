@@ -66,9 +66,9 @@ void main() {
 class MyUseCase {
   Result<MyException, MyResult> call({bool returnError = false}) {
     if (returnError) {
-      return Error(MyException("someting went wrong"));
+      return Error(MyException('someting went wrong'));
     } else {
-      return Success(MyResult("nice"));
+      return Success(MyResult('nice'));
     }
   }
 }

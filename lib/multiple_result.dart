@@ -1,18 +1,54 @@
-library result;
+library multiple_result;
 
+/// Base Result class
+///
+/// Receives two values [E] and [S]
+/// as [E] is an error and [S] is a success.
 abstract class Result<E, S> {
+  /// Default constructor.
   const Result();
 
+  /// Returns the current result.
+  ///
+  /// It may be a [Success] or an [Error].
+  /// Check with
+  /// ```dart
+  ///   result.isSuccess();
+  /// ```
+  /// or
+  /// ```dart
+  ///   result.isError();
+  /// ```
+  ///
+  /// before casting the value;
   dynamic get();
+
+  /// Returns true if the current result is
+  /// an [Error]
   bool isError();
+
+  /// Returns true if the current result is
+  /// a [success]
   bool isSuccess();
 
+  /// Return the result in one of these functions.
+  ///
+  /// if the result is an error, it will be returned in
+  /// [whenError],
+  /// if it is a success it will be returned in [whenSuccess].
   W when<W>(W Function(E error) whenError, W Function(S success) whenSuccess);
 }
 
+/// Success Result.
+///
+/// return it when the result of a [Result] is
+/// the expected value.
 class Success<E, S> implements Result<E, S> {
-  final S _success;
+  /// Receives the [S] param as
+  /// the successful result.
   const Success(this._success);
+
+  final S _success;
 
   @override
   S get() {
@@ -31,9 +67,16 @@ class Success<E, S> implements Result<E, S> {
   }
 }
 
+/// Error Result.
+///
+/// return it when the result of a [Result] is
+/// not the expected value.
 class Error<E, S> implements Result<E, S> {
-  final E _error;
+  /// Receives the [E] param as
+  /// the error result.
   const Error(this._error);
+
+  final E _error;
 
   @override
   E get() {
