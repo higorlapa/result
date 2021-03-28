@@ -1,9 +1,12 @@
 library multiple_result;
 
+import 'package:meta/meta.dart';
+
 /// Base Result class
 ///
 /// Receives two values [E] and [S]
 /// as [E] is an error and [S] is a success.
+@sealed
 abstract class Result<E, S> {
   /// Default constructor.
   const Result();
