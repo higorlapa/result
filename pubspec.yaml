@@ -1,5 +1,5 @@
 name: multiple_result
-description: Multiple results for flutter. Inspired by dartz's Either
+description: Multiple results for dart. Inspired by dartz's Either and Kotlin's sealed classes
 version: 1.0.1
 author: higorlapaa@gmail.com
 homepage: https://github.com/higorlapa/result
