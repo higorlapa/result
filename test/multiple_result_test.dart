@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:test/test.dart';
 
@@ -61,6 +62,22 @@ void main() {
 
     expect(exceptionResult != null, true);
   });
+
+  test('Test when the result is a Success', () {
+    final result = useCase();
+    expect(
+      result,
+      Success(MyResult('nice')),
+    );
+  });
+
+  test('Test when the result is a Error', () {
+    final result = useCase(returnError: true);
+    expect(
+      result,
+      Error(MyException('someting went wrong')),
+    );
+  });
 }
 
 class MyUseCase {
@@ -73,14 +90,29 @@ class MyUseCase {
   }
 }
 
+@immutable
 class MyException implements Exception {
+  final String message;
+
   MyException(this.message);
 
-  final String message;
+  @override
+  int get hashCode => message.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is MyException && other.message == message;
 }
 
+@immutable
 class MyResult {
   MyResult(this.value);
 
   final String value;
+
+  @override
+  int get hashCode => value.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is MyResult && other.value == value;
 }

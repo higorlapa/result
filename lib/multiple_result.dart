@@ -46,6 +46,7 @@ abstract class Result<E, S> {
 ///
 /// return it when the result of a [Result] is
 /// the expected value.
+@immutable
 class Success<E, S> implements Result<E, S> {
   /// Receives the [S] param as
   /// the successful result.
@@ -65,6 +66,13 @@ class Success<E, S> implements Result<E, S> {
   bool isSuccess() => true;
 
   @override
+  int get hashCode => _success.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Success && other._success == _success;
+
+  @override
   W when<W>(W Function(E error) whenError, W Function(S success) whenSuccess) {
     return whenSuccess(_success);
   }
@@ -74,6 +82,7 @@ class Success<E, S> implements Result<E, S> {
 ///
 /// return it when the result of a [Result] is
 /// not the expected value.
+@immutable
 class Error<E, S> implements Result<E, S> {
   /// Receives the [E] param as
   /// the error result.
@@ -91,6 +100,13 @@ class Error<E, S> implements Result<E, S> {
 
   @override
   bool isSuccess() => false;
+
+  @override
+  int get hashCode => _error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Error && other._error == _error;
 
   @override
   W when<W>(W Function(E error) whenError, W Function(S succcess) whenSuccess) {
