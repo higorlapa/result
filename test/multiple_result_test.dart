@@ -75,7 +75,7 @@ void main() {
     final result = useCase(returnError: true);
     expect(
       result,
-      Error(MyException('someting went wrong')),
+      Error(MyException('something went wrong')),
     );
   });
 }
@@ -83,7 +83,7 @@ void main() {
 class MyUseCase {
   Result<MyException, MyResult> call({bool returnError = false}) {
     if (returnError) {
-      return Error(MyException('someting went wrong'));
+      return Error(MyException('something went wrong'));
     } else {
       return Success(MyResult('nice'));
     }
