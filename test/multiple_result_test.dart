@@ -3,7 +3,7 @@ import 'package:multiple_result/multiple_result.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late MyUseCase useCase;
+  MyUseCase useCase;
 
   setUpAll(() {
     useCase = MyUseCase();
@@ -32,7 +32,7 @@ void main() {
   test('Test the get method for a Success output', () {
     final result = useCase.call();
 
-    MyResult? successResult;
+    MyResult successResult;
     if (result.isSuccess()) {
       successResult = result.get();
     }
@@ -44,7 +44,7 @@ void main() {
       () {
     final result = useCase.call(returnError: true);
 
-    MyResult? successResult;
+    MyResult successResult;
     if (result.isSuccess()) {
       successResult = result.get();
     }
@@ -55,7 +55,7 @@ void main() {
   test('Test the get method for an Error output', () {
     final result = useCase.call(returnError: true);
 
-    MyException? exceptionResult;
+    MyException exceptionResult;
     if (result.isError()) {
       exceptionResult = result.get();
     }
