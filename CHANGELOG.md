@@ -1,3 +1,8 @@
+## [1.0.4] - 07/19/2021
+
+* Adds getSuccess and getError methods
+* Adds SuccessResult and success const
+
 ## [1.0.3] - 05/02/2021
 
 * Adds @immutable annotation to Success and Error classes to help in the tests | Thanks to [Eronildo](https://github.com/Eronildo)!
