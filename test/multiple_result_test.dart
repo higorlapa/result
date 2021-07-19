@@ -9,75 +9,100 @@ void main() {
     useCase = MyUseCase();
   });
 
-  test('Test the when method when the result is an Error', () {
-    final result = useCase.call(returnError: true);
+  test(
+      'Given an error result'
+      'When getting the value through when'
+      'should return the value of the error function', () {
+    final result = useCase(returnError: true);
 
-    var value = 0;
-
-    result.when((error) => value = 1, (success) => value = 2);
+    final value = result.when(
+      (error) => 1,
+      (success) => 2,
+    );
 
     expect(value, 1);
   });
 
-  test('Test the when method when the result is a Success', () {
-    final result = useCase.call();
+  test(
+      'Given a success result, '
+      'When getting the result though when'
+      'should return the value of the success function', () {
+    final result = useCase();
 
-    var value = 0;
-
-    result.when((error) => value = 1, (success) => value = 2);
+    final value = result.when(
+      (error) => 1,
+      (success) => 2,
+    );
 
     expect(value, 2);
   });
 
-  test('Test the get method for a Success output', () {
-    final result = useCase.call();
+  test(
+      'Given a success result, '
+      'When getting the result through get, '
+      'should return the success value', () {
+    final result = useCase();
 
     MyResult? successResult;
     if (result.isSuccess()) {
       successResult = result.get();
     }
 
-    expect(successResult?.value, "nice");
+    expect(successResult!.value, isA<String>());
   });
 
-  test('Test the get method for an Error output but casting a Success output',
-      () {
-    final result = useCase.call(returnError: true);
+  test('''Given a success result, 
+        When getting the result through getSuccess, 
+        should return the success value''', () {
+    final result = useCase();
 
     MyResult? successResult;
     if (result.isSuccess()) {
-      successResult = result.get();
+      successResult = result.getSuccess();
+    }
+
+    expect(successResult!.value, isA<String>());
+  });
+
+  test(''' Given an error result, 
+          When getting the result through getSuccess, 
+          should return null ''', () {
+    final result = useCase(returnError: true);
+
+    MyResult? successResult;
+    if (result.isSuccess()) {
+      successResult = result.getSuccess();
     }
 
     expect(successResult?.value, null);
   });
 
-  test('Test the get method for an Error output', () {
-    final result = useCase.call(returnError: true);
+  test(''' Given an error result, 
+  When getting the result through the getError, 
+  should return the error value
+  ''', () {
+    final result = useCase(returnError: true);
 
     MyException? exceptionResult;
     if (result.isError()) {
-      exceptionResult = result.get();
+      exceptionResult = result.getError();
     }
 
     expect(exceptionResult != null, true);
   });
 
-  test('Test when the result is a Success', () {
-    final result = useCase();
-    expect(
-      result,
-      Success(MyResult('nice')),
-    );
+  test('''
+   Given a result of SuccessResult type, 
+   when getting the result, 
+   should return the success const
+  ''', () {
+    final result = getMockedSuccessResult();
+    expect(result.get(), success);
   });
+}
 
-  test('Test when the result is a Error', () {
-    final result = useCase(returnError: true);
-    expect(
-      result,
-      Error(MyException('something went wrong')),
-    );
-  });
+Result<MyException, SuccessResult> getMockedSuccessResult() {
+  return Success(success);
 }
 
 class MyUseCase {
