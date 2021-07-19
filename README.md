@@ -5,6 +5,11 @@ Result package for dart inspired by the work of [dartz](https://pub.dev/packages
 This package is perfect to those of you who just want the Multiple results
 functionality from dartz. 👌
 
+##### Old version:
+
+If you're looking for a non null-safety version, you can find it in [here](https://github.com/higorlapa/result/tree/no-null-safety)
+
+
 ## How to use it
 
 In the return of a function, set it to return a Result type;
@@ -23,13 +28,13 @@ Result<Exception, String> getSomethingPretty() {
 
 in return of the function, you just need to return
 ```dart
-return Success("Something Pretty");
+return Success('Something Pretty');
 ```
 
 or
 
 ```dart
-return Error(Exception("something ungly happened..."));
+return Error(Exception('something ugly happened...'));
 ```
 
 The function should look something like this:
@@ -38,9 +43,9 @@ The function should look something like this:
 
 Result<Exception, String> getSomethingPretty() {
     if(isOk) {
-        return Success("OK!");
+        return Success('OK!');
     } else {
-        return Error(Exception("Not Ok!"));
+        return Error(Exception('Not Ok!'));
     }
 }
 
@@ -51,13 +56,16 @@ Result<Exception, String> getSomethingPretty() {
 ```dart
 void main() {
     final result = getSomethingPretty();
-     result.when((error) {
-      // handle the error here
-      print(error);
-    }, (success) {
-      // handle the success here
-      print(success);
-    });
+     final String message = result.when(
+         (error) {
+          // handle the error here
+          return "error";
+        }, (success) {
+          // handle the success here
+          return "success";
+        },
+    );
+
 }
 ```
 
@@ -74,4 +82,34 @@ void main() {
     }
 }
 ```
+
+
+#### Handling the Result with `getSuccess`
+
+```dart
+void main() {
+    final result = getSomethingPretty();
+
+    String? mySuccessResult;
+    if (result.isSuccess()) {
+      mySuccessResult = result.getSuccess();
+    }
+}
+
+```
+
+
+#### Handling the Result with `getError`
+
+```dart
+void main() {
+    final result = getSomethingPretty();
+
+    Exception? myException;
+    if (result.isError()) {
+      myException = result.getError();
+    }
+}
+```
+
 
