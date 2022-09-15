@@ -58,8 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
               _counter++;
             });
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Counter cannot be bigger than 9")));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Counter cannot be bigger than 9")));
           }
         },
         tooltip: 'Increment',
@@ -68,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Result<IncrementException, bool> _shouldIncrement(int currentCount) {
+  Result<bool, IncrementException> _shouldIncrement(int currentCount) {
     if (currentCount + 1 == 10) {
       return Error(IncrementException("counter can't be bigger than 9"));
     } else {

@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 /// Receives two values [E] and [S]
 /// as [E] is an error and [S] is a success.
 @sealed
-abstract class Result<E, S> {
+abstract class Result<S, E> {
   /// Default constructor.
   const Result();
 
@@ -44,8 +44,8 @@ abstract class Result<E, S> {
   /// [whenError],
   /// if it is a success it will be returned in [whenSuccess].
   W when<W>(
-    W Function(E error) whenError,
     W Function(S success) whenSuccess,
+    W Function(E error) whenError,
   );
 }
 
@@ -54,7 +54,7 @@ abstract class Result<E, S> {
 /// return it when the result of a [Result] is
 /// the expected value.
 @immutable
-class Success<E, S> implements Result<E, S> {
+class Success<S, E> implements Result<S, E> {
   /// Receives the [S] param as
   /// the successful result.
   const Success(
@@ -78,13 +78,12 @@ class Success<E, S> implements Result<E, S> {
   int get hashCode => _success.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      other is Success && other._success == _success;
+  bool operator ==(Object other) => other is Success && other._success == _success;
 
   @override
   W when<W>(
-    W Function(E error) whenError,
     W Function(S success) whenSuccess,
+    W Function(E error) whenError,
   ) {
     return whenSuccess(_success);
   }
@@ -101,7 +100,7 @@ class Success<E, S> implements Result<E, S> {
 /// return it when the result of a [Result] is
 /// not the expected value.
 @immutable
-class Error<E, S> implements Result<E, S> {
+class Error<S, E> implements Result<S, E> {
   /// Receives the [E] param as
   /// the error result.
   const Error(this._error);
@@ -127,8 +126,8 @@ class Error<E, S> implements Result<E, S> {
 
   @override
   W when<W>(
-    W Function(E error) whenError,
     W Function(S succcess) whenSuccess,
+    W Function(E error) whenError,
   ) {
     return whenError(_error);
   }
