@@ -1,3 +1,10 @@
+## [2.0.0] - 12/03/2022
+
+* BREAKING: Rename `getSuccess` to `tryGetSuccess` and `getError` to `tryGetError` methods.
+* BREAKING: Flip the order of the Success and Error types. Thanks to [JoDeveloper](https://github.com/JoDeveloper) for executing and [RalphBergmannKMB](https://github.com/RalphBergmannKMB) for proposing.
+  * If you `Result<Exception, String>` now you must use `Result<String, Exception>` to improve readability.
+* Add `onSuccess` and `onError` methods to handle the result only in these cases.
+
 ## [1.0.4] - 07/19/2021
 
 * Adds getSuccess and getError methods
