@@ -24,13 +24,16 @@ abstract class Result<S, E> {
   /// ```
   ///
   /// before casting the value;
+  @Deprecated('Will be removed in the next version. '
+      'Use `tryGetSuccess` or `tryGetError` instead.'
+      'You may also use `onSuccess` and on `onError` for similar result.')
   dynamic get();
 
-  /// Returns the value of [S].
-  S? getSuccess();
+  /// Returns the value of [S] if any.
+  S? tryGetSuccess();
 
-  /// Returns the value of [E].
-  E? getError();
+  /// Returns the value of [E] if any.
+  E? tryGetError();
 
   /// Returns true if the current result is an [Error].
   bool isError();
@@ -46,6 +49,16 @@ abstract class Result<S, E> {
   W when<W>(
     W Function(S success) whenSuccess,
     W Function(E error) whenError,
+  );
+
+  /// Execute [whenSuccess] if the [Result] is a success.
+  R? onSuccess<R>(
+    R Function(S success) whenSuccess,
+  );
+
+  /// Execute [whenError] if the [Result] is an error.
+  R? onError<R>(
+    R Function(E error) whenError,
   );
 }
 
@@ -78,7 +91,8 @@ class Success<S, E> implements Result<S, E> {
   int get hashCode => _success.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Success && other._success == _success;
+  bool operator ==(Object other) =>
+      other is Success && other._success == _success;
 
   @override
   W when<W>(
@@ -89,10 +103,18 @@ class Success<S, E> implements Result<S, E> {
   }
 
   @override
-  E? getError() => null;
+  E? tryGetError() => null;
 
   @override
-  S? getSuccess() => _success;
+  S tryGetSuccess() => _success;
+
+  @override
+  R? onError<R>(R Function(E error) whenError) => null;
+
+  @override
+  R onSuccess<R>(R Function(S success) whenSuccess) {
+    return whenSuccess(_success);
+  }
 }
 
 /// Error Result.
@@ -133,21 +155,28 @@ class Error<S, E> implements Result<S, E> {
   }
 
   @override
-  E? getError() => _error;
+  E tryGetError() => _error;
 
   @override
-  S? getSuccess() => null;
+  S? tryGetSuccess() => null;
+
+  @override
+  R onError<R>(R Function(E error) whenError) => whenError(_error);
+
+  @override
+  R? onSuccess<R>(R Function(S success) whenSuccess) => null;
+
 }
 
 /// Default success class.
 ///
 /// Instead of returning void, as
 /// ```dart
-///   Result<Exception, void>
+///   Result<void, Exception>
 /// ```
 /// return
 /// ```dart
-///   Result<Exception, SuccessResult>
+///   Result<SuccessResult, Exception>
 /// ```
 class SuccessResult {
   const SuccessResult._internal();
@@ -155,3 +184,5 @@ class SuccessResult {
 
 /// Default success case.
 const success = SuccessResult._internal();
+
+

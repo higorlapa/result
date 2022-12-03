@@ -16,11 +16,11 @@ In the return of a function, set it to return a Result type;
 ```dart
 Result getSomethingPretty();
 ```
-then add the Error and the Success types.
+then add the Success and the Error types.
 
 ```dart
 
-Result<Exception, String> getSomethingPretty() {
+Result<String, Exception> getSomethingPretty() {
 
 }
 
@@ -41,7 +41,7 @@ The function should look something like this:
 
 ```dart
 
-Result<Exception, String> getSomethingPretty() {
+Result<String, Exception> getSomethingPretty() {
     if(isOk) {
         return Success('OK!');
     } else {
@@ -69,8 +69,31 @@ void main() {
 }
 ```
 
+#### Handling the Result with `onSuccess` or `onError`
+
+```dart 
+    final result = getSomethingPretty();
+    // notice the [onSuccess] or [onError] will only be executed if
+    // the result is a Success or an Error respectivaly. 
+    final output = result.onSuccess((name) {
+        // handle here the success
+        return "";
+    });
+    
+    final result = getSomethingPretty();
+    
+    // [result] is NOT an Error, this [output] will be null.
+    final output = result.onError((exception) {
+        // handle here the error
+        return "";
+    });
+```
 
 #### Handling the Result with `get`
+
+```
+note: [get] is now deprecated and will be removed in the next version.
+```
 
 ```dart
 void main() {
@@ -84,7 +107,7 @@ void main() {
 ```
 
 
-#### Handling the Result with `getSuccess`
+#### Handling the Result with `tryGetSuccess`
 
 ```dart
 void main() {
@@ -92,14 +115,14 @@ void main() {
 
     String? mySuccessResult;
     if (result.isSuccess()) {
-      mySuccessResult = result.getSuccess();
+      mySuccessResult = result.tryGetSuccess();
     }
 }
 
 ```
 
 
-#### Handling the Result with `getError`
+#### Handling the Result with `tryGetError`
 
 ```dart
 void main() {
@@ -107,7 +130,7 @@ void main() {
 
     Exception? myException;
     if (result.isError()) {
-      myException = result.getError();
+      myException = result.tryGetError();
     }
 }
 ```

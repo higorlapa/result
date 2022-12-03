@@ -52,40 +52,40 @@ void main() {
   });
 
   test('''Given a success result, 
-        When getting the result through getSuccess, 
+        When getting the result through tryGetSuccess, 
         should return the success value''', () {
     final result = useCase();
 
     MyResult? successResult;
     if (result.isSuccess()) {
-      successResult = result.getSuccess();
+      successResult = result.tryGetSuccess();
     }
 
     expect(successResult!.value, isA<String>());
   });
 
   test(''' Given an error result, 
-          When getting the result through getSuccess, 
+          When getting the result through tryGetSuccess, 
           should return null ''', () {
     final result = useCase(returnError: true);
 
     MyResult? successResult;
     if (result.isSuccess()) {
-      successResult = result.getSuccess();
+      successResult = result.tryGetSuccess();
     }
 
     expect(successResult?.value, null);
   });
 
   test(''' Given an error result, 
-  When getting the result through the getError, 
+  When getting the result through the tryGetError, 
   should return the error value
   ''', () {
     final result = useCase(returnError: true);
 
     MyException? exceptionResult;
     if (result.isError()) {
-      exceptionResult = result.getError();
+      exceptionResult = result.tryGetError();
     }
 
     expect(exceptionResult != null, true);
@@ -99,6 +99,63 @@ void main() {
     final result = getMockedSuccessResult();
     expect(result.get(), success);
   });
+
+  group(
+    "onSuccess and onError",
+    () {
+      test('''
+       Given a result of SuccessResult type, 
+       when executing onSuccess, 
+       should return the result of onSuccess,
+      ''', () {
+        final result = getMockedSuccessResult();
+        int? onSuccessValue;
+        result.onSuccess((success) {
+          onSuccessValue = 10;
+        });
+        expect(onSuccessValue, 10);
+      });
+
+      test('''
+         Given a result of Error type, 
+         when executing onSuccess, 
+         should return null,
+        ''', () {
+        final result = useCase.call(returnError: true);
+        int? onSuccessValue;
+        result.onSuccess((success) {
+          onSuccessValue = 10;
+        });
+        expect(onSuccessValue, null);
+      });
+
+      test('''
+       Given a result of SuccessResult type, 
+       when executing onError, 
+       should return null,
+      ''', () {
+        final result = getMockedSuccessResult();
+        int? onErrorValue;
+        result.onError((success) {
+          onErrorValue = 10;
+        });
+        expect(onErrorValue, null);
+      });
+
+      test('''
+         Given a result of an Error type, 
+         when executing onError, 
+         should return the result of onError,
+        ''', () {
+        final result = useCase.call(returnError: true);
+        int? onErrorValue;
+        result.onError((success) {
+          onErrorValue = 10;
+        });
+        expect(onErrorValue, 10);
+      });
+    },
+  );
 }
 
 Result<SuccessResult, MyException> getMockedSuccessResult() {
@@ -125,7 +182,8 @@ class MyException implements Exception {
   int get hashCode => message.hashCode;
 
   @override
-  bool operator ==(Object other) => other is MyException && other.message == message;
+  bool operator ==(Object other) =>
+      other is MyException && other.message == message;
 }
 
 @immutable

@@ -53,13 +53,20 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           final result = _shouldIncrement(_counter);
-          if (result.isSuccess()) {
-            setState(() {
-              _counter++;
-            });
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Counter cannot be bigger than 9")));
-          }
+          result.when(
+            (success) {
+              setState(() {
+                _counter++;
+              });
+            },
+            (error) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(error.message),
+                ),
+              );
+            },
+          );
         },
         tooltip: 'Increment',
         child: Icon(Icons.add),
