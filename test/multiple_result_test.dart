@@ -16,8 +16,8 @@ void main() {
     final result = useCase(returnError: true);
 
     final value = result.when(
-      (error) => 1,
       (success) => 2,
+      (error) => 1,
     );
 
     expect(value, 1);
@@ -30,8 +30,8 @@ void main() {
     final result = useCase();
 
     final value = result.when(
-      (error) => 1,
       (success) => 2,
+      (error) => 1,
     );
 
     expect(value, 2);
@@ -101,12 +101,12 @@ void main() {
   });
 }
 
-Result<MyException, SuccessResult> getMockedSuccessResult() {
+Result<SuccessResult, MyException> getMockedSuccessResult() {
   return Success(success);
 }
 
 class MyUseCase {
-  Result<MyException, MyResult> call({bool returnError = false}) {
+  Result<MyResult, MyException> call({bool returnError = false}) {
     if (returnError) {
       return Error(MyException('something went wrong'));
     } else {
@@ -125,8 +125,7 @@ class MyException implements Exception {
   int get hashCode => message.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      other is MyException && other.message == message;
+  bool operator ==(Object other) => other is MyException && other.message == message;
 }
 
 @immutable
