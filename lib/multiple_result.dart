@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 /// Receives two values [E] and [S]
 /// as [E] is an error and [S] is a success.
 @sealed
-abstract class Result<E, S> {
+abstract class Result<S, E> {
   /// Default constructor.
   const Result();
 
@@ -24,14 +24,21 @@ abstract class Result<E, S> {
   /// ```
   ///
   /// before casting the value;
+  @Deprecated('Will be removed in the next version. '
+      'Use `tryGetSuccess` or `tryGetError` instead.'
+      'You may also use `onSuccess` and on `onError` for similar result.')
   dynamic get();
 
-  /// Returns true if the current result is
-  /// an [Error]
+  /// Returns the value of [S] if any.
+  S? tryGetSuccess();
+
+  /// Returns the value of [E] if any.
+  E? tryGetError();
+
+  /// Returns true if the current result is an [Error].
   bool isError();
 
-  /// Returns true if the current result is
-  /// a [success]
+  /// Returns true if the current result is a [success].
   bool isSuccess();
 
   /// Return the result in one of these functions.
@@ -39,17 +46,33 @@ abstract class Result<E, S> {
   /// if the result is an error, it will be returned in
   /// [whenError],
   /// if it is a success it will be returned in [whenSuccess].
-  W when<W>(W Function(E error) whenError, W Function(S success) whenSuccess);
+  W when<W>(
+    W Function(S success) whenSuccess,
+    W Function(E error) whenError,
+  );
+
+  /// Execute [whenSuccess] if the [Result] is a success.
+  R? onSuccess<R>(
+    R Function(S success) whenSuccess,
+  );
+
+  /// Execute [whenError] if the [Result] is an error.
+  R? onError<R>(
+    R Function(E error) whenError,
+  );
 }
 
 /// Success Result.
 ///
 /// return it when the result of a [Result] is
 /// the expected value.
-class Success<E, S> implements Result<E, S> {
+@immutable
+class Success<S, E> implements Result<S, E> {
   /// Receives the [S] param as
   /// the successful result.
-  const Success(this._success);
+  const Success(
+    this._success,
+  );
 
   final S _success;
 
@@ -65,7 +88,31 @@ class Success<E, S> implements Result<E, S> {
   bool isSuccess() => true;
 
   @override
-  W when<W>(W Function(E error) whenError, W Function(S success) whenSuccess) {
+  int get hashCode => _success.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Success && other._success == _success;
+
+  @override
+  W when<W>(
+    W Function(S success) whenSuccess,
+    W Function(E error) whenError,
+  ) {
+    return whenSuccess(_success);
+  }
+
+  @override
+  E? tryGetError() => null;
+
+  @override
+  S tryGetSuccess() => _success;
+
+  @override
+  R? onError<R>(R Function(E error) whenError) => null;
+
+  @override
+  R onSuccess<R>(R Function(S success) whenSuccess) {
     return whenSuccess(_success);
   }
 }
@@ -74,7 +121,8 @@ class Success<E, S> implements Result<E, S> {
 ///
 /// return it when the result of a [Result] is
 /// not the expected value.
-class Error<E, S> implements Result<E, S> {
+@immutable
+class Error<S, E> implements Result<S, E> {
   /// Receives the [E] param as
   /// the error result.
   const Error(this._error);
@@ -93,7 +141,48 @@ class Error<E, S> implements Result<E, S> {
   bool isSuccess() => false;
 
   @override
-  W when<W>(W Function(E error) whenError, W Function(S succcess) whenSuccess) {
+  int get hashCode => _error.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is Error && other._error == _error;
+
+  @override
+  W when<W>(
+    W Function(S succcess) whenSuccess,
+    W Function(E error) whenError,
+  ) {
     return whenError(_error);
   }
+
+  @override
+  E tryGetError() => _error;
+
+  @override
+  S? tryGetSuccess() => null;
+
+  @override
+  R onError<R>(R Function(E error) whenError) => whenError(_error);
+
+  @override
+  R? onSuccess<R>(R Function(S success) whenSuccess) => null;
+
 }
+
+/// Default success class.
+///
+/// Instead of returning void, as
+/// ```dart
+///   Result<void, Exception>
+/// ```
+/// return
+/// ```dart
+///   Result<SuccessResult, Exception>
+/// ```
+class SuccessResult {
+  const SuccessResult._internal();
+}
+
+/// Default success case.
+const success = SuccessResult._internal();
+
+
