@@ -10,7 +10,7 @@ functionality from dartz. 👌
 If you're looking for a non null-safety version, you can find it in [here](https://github.com/higorlapa/result/tree/no-null-safety)
 
 
-## How to use it
+## Use **Result** type:
 
 In the return of a function, set it to return a Result type;
 ```dart
@@ -135,4 +135,111 @@ void main() {
 }
 ```
 
+#### Mapping success value with `map`
 
+```dart
+void main() {
+    final result = getResult()
+                    .map((e) => MyObject.fromMap(e));
+
+    result.tryGetSuccess(); //Instance of 'MyObject' 
+}
+```
+
+#### Mapping error value with `mapError`
+
+```dart
+void main() {
+    final result = getResult()
+                    .mapError((e) => MyException(e));
+
+    result.tryGetError(); //Instance of 'MyException'
+
+}
+```
+
+#### Chain others [Result] with `flatMap`
+
+```dart
+
+Result<String, MyException> checkIsEven(String input){
+    if(input % 2 == 0){
+        return Success(input);
+    } else {
+        return Error(MyException('isn`t even!'));
+    }
+}
+
+void main() {
+    final result = getNumberResult()
+                    .flatMap((s) => checkIsEven(s));
+}
+```
+
+#### Add a pure 'Success' value with `pure`
+
+```dart
+void main() {
+    final result = getSomethingPretty().pure(10);
+
+    String? mySuccessResult;
+    if (result.isSuccess()) {
+      mySuccessResult = result.tryGetSuccess(); // 10
+    }
+}
+```
+
+## Unit Type
+
+Some results do not need a specific return. Use the Unit type to signal an empty return.
+
+```dart
+    Result<Unit, Exception>
+```
+
+## Use **AsyncResult** type:
+
+`AsyncResult<S, E>` represents an asynchronous computation.
+Use this component when working with asynchronous **Result**.
+
+**AsyncResult** has some of the operators of the **Result** object to perform data transformations (**Success** or **Error**) before executing the Future.
+
+The operators of the **Result** object available in **AsyncResult** are:
+
+- map
+- mapError
+- flatMap
+- pure
+
+Use the **run()** method to run an `AsyncResult<S, E>` turning it into a `Result<S, E>`:
+
+```dart
+
+AsyncResult<String, Exception> fetch(){
+    return AsyncResult(() async {
+        await Future.delayer(Duration(second: 1));
+        return Success('Done!');
+    });
+}
+
+final result = await fetch().run();
+
+//result now is Result<String, Exception>
+
+```
+
+There are 3 constructors for **AsyncResult**. Are they:
+
+```dart
+// default
+AsyncResult(() async {
+    ...
+});
+
+// with success value
+AsyncResult.success(10);
+
+// with error value
+AsyncResult.error(MyException);
+
+```
