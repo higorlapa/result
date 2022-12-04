@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'async_result.dart';
+
 /// Base Result class
 ///
 /// Receives two values [E] and [S]
@@ -82,6 +84,9 @@ abstract class Result<S, E> {
   Result<W, E> pure<W>(W success) {
     return map((_) => success);
   }
+
+  /// Return a [AsyncResult].
+  AsyncResult<S, E> toAsyncResult() => AsyncResult(() async => this);
 }
 
 /// Success Result.
@@ -113,7 +118,9 @@ class Success<S, E> extends Result<S, E> {
   int get hashCode => _success.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Success && other._success == _success;
+  bool operator ==(Object other) {
+    return other is Success && other._success == _success;
+  }
 
   @override
   W when<W>(

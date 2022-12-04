@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:multiple_result/multiple_result.dart';
+import 'package:multiple_result/src/async_result.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -224,6 +225,12 @@ void main() {
       expect(result.tryGetSuccess(), isNull);
       expect(result.tryGetError(), 4);
     });
+  });
+
+  test('toAsyncResult', () {
+    final result = Success(0);
+
+    expect(result.toAsyncResult(), isA<AsyncResult>());
   });
 }
 
