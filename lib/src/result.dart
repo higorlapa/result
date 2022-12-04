@@ -11,6 +11,12 @@ abstract class Result<S, E> {
   /// Default constructor.
   const Result();
 
+  /// Build a [Result] that returns a [Error].
+  factory Result.success(S s) => Success(s);
+
+  /// Build a [Result] that returns a [Error].
+  factory Result.error(E e) => Error(e);
+
   /// Returns the current result.
   ///
   /// It may be a [Success] or an [Error].

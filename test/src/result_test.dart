@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 import 'package:multiple_result/multiple_result.dart';
-import 'package:multiple_result/src/async_result.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -8,6 +7,16 @@ void main() {
 
   setUpAll(() {
     useCase = MyUseCase();
+  });
+
+  test('Result.success', () {
+    final result = Result.success(0);
+    expect(result.tryGetSuccess(), 0);
+  });
+
+  test('Result.error', () {
+    final result = Result.error(0);
+    expect(result.tryGetError(), 0);
   });
 
   test(
