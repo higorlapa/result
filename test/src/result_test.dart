@@ -267,7 +267,8 @@ class MyException implements Exception {
   int get hashCode => message.hashCode;
 
   @override
-  bool operator ==(Object other) => other is MyException && other.message == message;
+  bool operator ==(Object other) =>
+      other is MyException && other.message == message;
 }
 
 @immutable
