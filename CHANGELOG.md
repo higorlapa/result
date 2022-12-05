@@ -1,3 +1,14 @@
+## [3.0.0] - 12/05/2022
+Thanks to [Jacob](https://github.com/jacobaraujo7)
+* Add new operators in Result:
+  New operators will allow transforming success and error values before the values are extracted.
+   * map
+   * mapError
+   * flatMap
+   * pure
+* Create Unit type (and deprecate `SuccessResult`)
+* Add `AsyncResult` to perform asynchronous computation.
+
 ## [2.0.0] - 12/03/2022
 
 * BREAKING: Rename `getSuccess` to `tryGetSuccess` and `getError` to `tryGetError` methods.
