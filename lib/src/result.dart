@@ -44,7 +44,7 @@ abstract class Result<S, E> {
   /// Returns true if the current result is an [Error].
   bool isError();
 
-  /// Returns true if the current result is a [success].
+  /// Returns true if the current result is a [Success].
   bool isSuccess();
 
   /// Return the result in one of these functions.
