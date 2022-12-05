@@ -1,3 +1,8 @@
+## [3.1.0] - 12/05/2022
+* 100% Test Coverage!!.
+* Refactor `AsyncResult`.
+* Remove deprecated operator `get()`.
+
 ## [3.0.0] - 12/05/2022
 Thanks to [Jacob](https://github.com/jacobaraujo7)
 * Add new operators in Result:
