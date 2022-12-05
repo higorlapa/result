@@ -1,6 +1,6 @@
 name: multiple_result
 description: Multiple results for dart. Inspired by dartz's Either and Kotlin's sealed classes
-version: 3.0.0
+version: 3.1.0
 repository: https://github.com/higorlapa/result
 
 environment:

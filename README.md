@@ -211,35 +211,24 @@ The operators of the **Result** object available in **AsyncResult** are:
 - flatMap
 - pure
 
-Use the **run()** method to run an `AsyncResult<S, E>` turning it into a `Result<S, E>`:
+`AsyncResult<S, E>` is a **typedef** of `Future<Result<S, E>>`.
 
 ```dart
 
-AsyncResult<String, Exception> fetch(){
-    return AsyncResult(() async {
-        await Future.delayer(Duration(second: 1));
-        return Success('Done!');
-    });
+AsyncResult<String, Exception> fetchProducts() async {
+    try {
+      final response = await dio.get('/products');
+      final products = ProductModel.fromList(response.data);
+      return Success(products);
+    } on DioError catch (e) {
+      return Error(ProductException(e.message));
+    }
 }
 
-final result = await fetch().run();
+...
 
-//result now is Result<String, Exception>
-
-```
-
-There are 3 constructors for **AsyncResult**. Are they:
-
-```dart
-// default
-AsyncResult(() async {
-    ...
-});
-
-// with success value
-AsyncResult.success(10);
-
-// with error value
-AsyncResult.error(MyException);
+final state = await fetch()
+    .map((products) => LoadedState(products))
+    .mapLeft((error) => ErrorState(error))
 
 ```
