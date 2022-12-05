@@ -221,9 +221,11 @@ class Error<S, E> extends Result<S, E> {
 /// ```dart
 ///   Result<SuccessResult, Exception>
 /// ```
+@Deprecated('Use Unit instead.')
 class SuccessResult {
   const SuccessResult._internal();
 }
 
 /// Default success case.
+@Deprecated('Use unit instead.')
 const success = SuccessResult._internal();
