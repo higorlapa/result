@@ -47,20 +47,6 @@ void main() {
     expect(value, 2);
   });
 
-  test(
-      'Given a success result, '
-      'When getting the result through get, '
-      'should return the success value', () {
-    final result = useCase();
-
-    MyResult? successResult;
-    if (result.isSuccess()) {
-      successResult = result.get();
-    }
-
-    expect(successResult!.value, isA<String>());
-  });
-
   test('''Given a success result, 
         When getting the result through tryGetSuccess, 
         should return the success value''', () {
@@ -72,6 +58,7 @@ void main() {
     }
 
     expect(successResult!.value, isA<String>());
+    expect(result.isError(), isFalse);
   });
 
   test(''' Given an error result, 
@@ -99,15 +86,7 @@ void main() {
     }
 
     expect(exceptionResult != null, true);
-  });
-
-  test('''
-   Given a result of SuccessResult type, 
-   when getting the result, 
-   should return the success const
-  ''', () {
-    final result = getMockedSuccessResult();
-    expect(result.get(), success);
+    expect(result.isSuccess(), isFalse);
   });
 
   group(
@@ -166,6 +145,14 @@ void main() {
       });
     },
   );
+
+  test('equatable', () {
+    expect(Success(1) == Success(1), isTrue);
+    expect(Success(1).hashCode == Success(1).hashCode, isTrue);
+
+    expect(Error(1) == Error(1), isTrue);
+    expect(Error(1).hashCode == Error(1).hashCode, isTrue);
+  });
 
   group('Map', () {
     test('Success', () {
@@ -267,8 +254,7 @@ class MyException implements Exception {
   int get hashCode => message.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      other is MyException && other.message == message;
+  bool operator ==(Object other) => other is MyException && other.message == message;
 }
 
 @immutable

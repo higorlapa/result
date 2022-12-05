@@ -7,9 +7,6 @@ import 'package:meta/meta.dart';
 @sealed
 class Unit {
   const Unit._();
-
-  @override
-  String toString() => 'Unit';
 }
 
 /// Used instead of `void` as a return statement for a function when
