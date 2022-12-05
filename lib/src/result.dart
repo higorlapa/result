@@ -17,24 +17,6 @@ abstract class Result<S, E> {
   /// Build a [Result] that returns a [Error].
   factory Result.error(E e) => Error(e);
 
-  /// Returns the current result.
-  ///
-  /// It may be a [Success] or an [Error].
-  /// Check with
-  /// ```dart
-  ///   result.isSuccess();
-  /// ```
-  /// or
-  /// ```dart
-  ///   result.isError();
-  /// ```
-  ///
-  /// before casting the value;
-  @Deprecated('Will be removed in the next version. '
-      'Use `tryGetSuccess` or `tryGetError` instead.'
-      'You may also use `onSuccess` and on `onError` for similar result.')
-  dynamic get();
-
   /// Returns the value of [S] if any.
   S? tryGetSuccess();
 
@@ -92,7 +74,7 @@ abstract class Result<S, E> {
   }
 
   /// Return a [AsyncResult].
-  AsyncResult<S, E> toAsyncResult() => AsyncResult(() async => this);
+  AsyncResult<S, E> toAsyncResult() async => this;
 }
 
 /// Success Result.
@@ -108,11 +90,6 @@ class Success<S, E> extends Result<S, E> {
   );
 
   final S _success;
-
-  @override
-  S get() {
-    return _success;
-  }
 
   @override
   bool isError() => false;
@@ -167,11 +144,6 @@ class Error<S, E> extends Result<S, E> {
   const Error(this._error);
 
   final E _error;
-
-  @override
-  E get() {
-    return _error;
-  }
 
   @override
   bool isError() => true;
