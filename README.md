@@ -57,12 +57,13 @@ Result<String, Exception> getSomethingPretty() {
 void main() {
     final result = getSomethingPretty();
      final String message = result.when(
+        (success) {
+          // handle the success here
+          return "success";
+        },
          (error) {
           // handle the error here
           return "error";
-        }, (success) {
-          // handle the success here
-          return "success";
         },
     );
 
@@ -140,7 +141,7 @@ void main() {
 ```dart
 void main() {
     final result = getResult()
-                    .map((e) => MyObject.fromMap(e));
+        .map((e) => MyObject.fromMap(e));
 
     result.tryGetSuccess(); //Instance of 'MyObject' 
 }
@@ -151,7 +152,7 @@ void main() {
 ```dart
 void main() {
     final result = getResult()
-                    .mapError((e) => MyException(e));
+        .mapError((e) => MyException(e));
 
     result.tryGetError(); //Instance of 'MyException'
 
@@ -172,7 +173,7 @@ Result<String, MyException> checkIsEven(String input){
 
 void main() {
     final result = getNumberResult()
-                    .flatMap((s) => checkIsEven(s));
+        .flatMap((s) => checkIsEven(s));
 }
 ```
 
