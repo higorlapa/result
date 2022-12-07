@@ -90,24 +90,6 @@ void main() {
     });
 ```
 
-#### Handling the Result with `get`
-
-```
-note: [get] is now deprecated and will be removed in the next version.
-```
-
-```dart
-void main() {
-    final result = getSomethingPretty();
-
-    String? mySuccessResult;
-    if (result.isSuccess()) {
-      mySuccessResult = result.get();
-    }
-}
-```
-
-
 #### Handling the Result with `tryGetSuccess`
 
 ```dart
