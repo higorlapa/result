@@ -51,23 +51,27 @@ Result<String, Exception> getSomethingPretty() {
 
 ```
 
-#### Handling the Result with `when`
+#### Handling the Result with `when` or `fold`:
 
 ```dart
 void main() {
     final result = getSomethingPretty();
      final String message = result.when(
+        (success) {
+          // handle the success here
+          return "success";
+        },
          (error) {
           // handle the error here
           return "error";
-        }, (success) {
-          // handle the success here
-          return "success";
         },
     );
 
 }
 ```
+** OBS: As we are going through a transition process, the `when` and `fold` syntax are identical. 
+Use whichever one you feel most comfortable with and help us figure out which one should remain in the pack.
+
 
 #### Handling the Result with `onSuccess` or `onError`
 
@@ -88,24 +92,6 @@ void main() {
         return "";
     });
 ```
-
-#### Handling the Result with `get`
-
-```
-note: [get] is now deprecated and will be removed in the next version.
-```
-
-```dart
-void main() {
-    final result = getSomethingPretty();
-
-    String? mySuccessResult;
-    if (result.isSuccess()) {
-      mySuccessResult = result.get();
-    }
-}
-```
-
 
 #### Handling the Result with `tryGetSuccess`
 
@@ -135,12 +121,14 @@ void main() {
 }
 ```
 
+## Transforming a Result
+
 #### Mapping success value with `map`
 
 ```dart
 void main() {
     final result = getResult()
-                    .map((e) => MyObject.fromMap(e));
+        .map((e) => MyObject.fromMap(e));
 
     result.tryGetSuccess(); //Instance of 'MyObject' 
 }
@@ -151,14 +139,14 @@ void main() {
 ```dart
 void main() {
     final result = getResult()
-                    .mapError((e) => MyException(e));
+        .mapError((e) => MyException(e));
 
     result.tryGetError(); //Instance of 'MyException'
 
 }
 ```
 
-#### Chain others [Result] with `flatMap`
+#### Chain others [Result] by any `Success` value with `flatMap`
 
 ```dart
 
@@ -172,11 +160,20 @@ Result<String, MyException> checkIsEven(String input){
 
 void main() {
     final result = getNumberResult()
-                    .flatMap((s) => checkIsEven(s));
+        .flatMap((s) => checkIsEven(s));
+}
+```
+#### Chain others [Result] by `Error` value with `flatMapError`
+
+```dart
+
+void main() {
+    final result = getNumberResult()
+        .flatMapError((e) => checkError(e));
 }
 ```
 
-#### Add a pure 'Success' value with `pure`
+#### Add a pure `Success` value with `pure`
 
 ```dart
 void main() {
@@ -186,6 +183,25 @@ void main() {
     if (result.isSuccess()) {
       mySuccessResult = result.tryGetSuccess(); // 10
     }
+}
+```
+
+#### Add a pure `Error` value with `pureError`
+
+```dart
+void main() {
+    final result = getSomethingPretty().pureError(10);
+    if (result.isError()) {
+       result.tryGetError(); // 10
+    }
+}
+```
+#### Swap a `Result` with `swap`
+
+```dart
+void main() {
+    Result<String, int> result =...;
+    Result<int, String> newResult = result.swap();
 }
 ```
 
@@ -209,7 +225,10 @@ The operators of the **Result** object available in **AsyncResult** are:
 - map
 - mapError
 - flatMap
+- flatMapError
 - pure
+- pureError
+- swap
 
 `AsyncResult<S, E>` is a **typedef** of `Future<Result<S, E>>`.
 

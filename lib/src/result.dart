@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'async_result.dart';
+import 'unit.dart' as type_unit;
 
 /// Base Result class
 ///
@@ -34,10 +35,24 @@ abstract class Result<S, E> {
   /// if the result is an error, it will be returned in
   /// [whenError],
   /// if it is a success it will be returned in [whenSuccess].
+  /// <br><br>
+  /// Same of `fold`
   W when<W>(
     W Function(S success) whenSuccess,
     W Function(E error) whenError,
   );
+
+  /// Returns the result of onSuccess for the encapsulated value
+  /// if this instance represents `Success` or the result of onError function
+  /// for the encapsulated value if it is `Error`.
+  /// <br><br>
+  /// Same of `when`
+  W fold<W>(
+    W Function(S success) onSuccess,
+    W Function(E error) onError,
+  ) {
+    return when<W>(onSuccess, onError);
+  }
 
   /// Execute [whenSuccess] if the [Result] is a success.
   R? onSuccess<R>(
@@ -49,32 +64,42 @@ abstract class Result<S, E> {
     R Function(E error) whenError,
   );
 
-  /// If the [Result] is [Success], then change its value from type `S` to
-  /// type `W` using function `fn`.
+  /// Returns a new `Result`, mapping any `Success` value
+  /// using the given transformation.
   Result<W, E> map<W>(W Function(S success) fn) {
     return when((success) => Success(fn(success)), Error.new);
   }
 
-  /// If the [Result] is [Error], then change its value from type `S` to
-  /// type `W` using function `fn`.
+  /// Returns a new `Result`, mapping any `Error` value
+  /// using the given transformation.
   Result<S, W> mapError<W>(W Function(E error) fn) {
     return when(Success.new, (error) => Error(fn(error)));
   }
 
-  /// Used to chain multiple functions that return a [Result].
-  /// You can extract the value of every [Success] in the chain without
-  /// handling all possible missing cases.
-  /// If any of the functions in the chain returns [Error],
-  /// the result is [Error].
+  /// Returns a new `Result`, mapping any `Success` value
+  /// using the given transformation and unwrapping the produced `Result`.
   Result<W, E> flatMap<W>(Result<W, E> Function(S success) fn);
 
-  /// Change a [Success] value.
+  /// Returns a new `Result`, mapping any `Error` value
+  /// using the given transformation and unwrapping the produced `Result`.
+  Result<S, W> flatMapError<W>(Result<S, W> Function(E error) fn);
+
+  /// Change the [Success] value.
   Result<W, E> pure<W>(W success) {
     return map((_) => success);
   }
 
+  /// Change the [Error] value.
+  Result<S, W> pureError<W>(W error) {
+    return mapError((_) => error);
+  }
+
   /// Return a [AsyncResult].
   AsyncResult<S, E> toAsyncResult() async => this;
+
+  /// Swap the values contained inside the [Success] and [Error]
+  /// of this [Result].
+  Result<E, S> swap();
 }
 
 /// Success Result.
@@ -88,6 +113,14 @@ class Success<S, E> extends Result<S, E> {
   const Success(
     this._success,
   );
+
+  /// Build a `Success` with `Unit` value.
+  /// ```dart
+  /// Success.unit() == Success(unit)
+  /// ```
+  static Success<type_unit.Unit, E> unit<E>() {
+    return Success<type_unit.Unit, E>(type_unit.unit);
+  }
 
   final S _success;
 
@@ -131,6 +164,16 @@ class Success<S, E> extends Result<S, E> {
   Result<W, E> flatMap<W>(Result<W, E> Function(S success) fn) {
     return fn(_success);
   }
+
+  @override
+  Result<S, W> flatMapError<W>(Result<S, W> Function(E error) fn) {
+    return Success<S, W>(_success);
+  }
+
+  @override
+  Result<E, S> swap() {
+    return Error(_success);
+  }
 }
 
 /// Error Result.
@@ -142,6 +185,14 @@ class Error<S, E> extends Result<S, E> {
   /// Receives the [E] param as
   /// the error result.
   const Error(this._error);
+
+  /// Build a `Error` with `Unit` value.
+  /// ```dart
+  /// Error.unit() == Error(unit)
+  /// ```
+  static Error<S, type_unit.Unit> unit<S>() {
+    return Error<S, type_unit.Unit>(type_unit.unit);
+  }
 
   final E _error;
 
@@ -180,6 +231,16 @@ class Error<S, E> extends Result<S, E> {
   @override
   Result<W, E> flatMap<W>(Result<W, E> Function(S success) fn) {
     return Error<W, E>(_error);
+  }
+
+  @override
+  Result<S, W> flatMapError<W>(Result<S, W> Function(E error) fn) {
+    return fn(_error);
+  }
+
+  @override
+  Result<E, S> swap() {
+    return Success(_error);
   }
 }
 

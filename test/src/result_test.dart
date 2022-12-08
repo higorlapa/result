@@ -9,6 +9,36 @@ void main() {
     useCase = MyUseCase();
   });
 
+  group('factories', () {
+    test('Success.unit', () {
+      final result = Success.unit();
+      expect(result.tryGetSuccess(), unit);
+    });
+
+    test('Success.unit type infer', () {
+      Result<Unit, Exception> fn() {
+        return Success.unit();
+      }
+
+      final result = fn();
+      expect(result.tryGetSuccess(), unit);
+    });
+
+    test('Error.unit', () {
+      final result = Error.unit();
+      expect(result.tryGetError(), unit);
+    });
+
+    test('Error.unit type infer', () {
+      Result<String, Unit> fn() {
+        return Error.unit();
+      }
+
+      final result = fn();
+      expect(result.tryGetError(), unit);
+    });
+  });
+
   test('Result.success', () {
     final result = Result.success(0);
     expect(result.tryGetSuccess(), 0);
@@ -206,6 +236,23 @@ void main() {
     });
   });
 
+  group('flatMapError', () {
+    test('Error', () {
+      final result = Error<int, int>(4);
+      final result2 = result.flatMapError((error) => Error('=' * error));
+
+      expect(result2.tryGetError(), '====');
+    });
+
+    test('Success', () {
+      final result = Success<int, String>(4);
+      final result2 = result.flatMapError(Error.new);
+
+      expect(result2.tryGetError(), isNull);
+      expect(result2.tryGetSuccess(), 4);
+    });
+  });
+
   group('pure', () {
     test('Success', () {
       final result = Success<int, int>(4) //
@@ -223,10 +270,43 @@ void main() {
     });
   });
 
+  group('pureError', () {
+    test('Error', () {
+      final result = Error<int, int>(4) //
+          .pureError(6)
+          .mapError((error) => '=' * error);
+
+      expect(result.tryGetError(), '======');
+    });
+
+    test('Success', () {
+      final result = Success<int, String>(4).pureError(6);
+
+      expect(result.tryGetError(), isNull);
+      expect(result.tryGetSuccess(), 4);
+    });
+  });
+
   test('toAsyncResult', () {
     final result = Success(0);
 
     expect(result.toAsyncResult(), isA<AsyncResult>());
+  });
+
+  group('swap', () {
+    test('Success to Error', () {
+      final result = Success<int, String>(0);
+      final swap = result.swap();
+
+      expect(swap.tryGetError(), 0);
+    });
+
+    test('Error to Success', () {
+      final result = Error<String, int>(0);
+      final swap = result.swap();
+
+      expect(swap.tryGetSuccess(), 0);
+    });
   });
 }
 
@@ -254,7 +334,8 @@ class MyException implements Exception {
   int get hashCode => message.hashCode;
 
   @override
-  bool operator ==(Object other) => other is MyException && other.message == message;
+  bool operator ==(Object other) =>
+      other is MyException && other.message == message;
 }
 
 @immutable

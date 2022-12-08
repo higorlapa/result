@@ -1,3 +1,33 @@
+## [3.2.0] - 12/08/2022
+
+
+* **Change to `flatMap` in `AsyncResult` allowing synchronous `Result` chaining**:<br>
+We noticed that we can receive a `FutureOr` instead of a `Future` in the `flatMap` anonymous function, more specifically in the `AsyncResult`.
+Now we hope to be able to chain asynchronous and synchronous functions in `AsyncResult`. <br>
+Note that this update only reflects on the `AsyncResult`, this means that the `Result.flatMap` will not change and will still only accept synchronous results(No-Future here).
+
+* **New operators for `Error` result**: <br>
+We have always been supporting `Success` value transformation
+and now we want to show that we care about the flow of errors.<br>
+That's why we added 2 specific operators for `Result` of `Error`:
+   1. `flatMapError`.
+   2. `pureError`
+
+* **Welcome `fold`**:<br>
+`multiple_result` is a proposal based on `Either` from `dartz`, `sealed class` from `Koltin`, in addition to the `Result` objects seen in `Swift` and `Kotlin`. Some developers might be uncomfortable without `fold`. That's why we are bringing `fold` as an alias of `when`, that is, both `when` and `fold` do exactly the same thing!<br>
+Help us figure out which one to remove in the near future.
+
+* **SWAP**:<br>
+This new operand will be useful when you need to swap `Success` and `Error`.
+```dart
+Result<String, int> result =...;
+Result<int, String> newResult = result.swap();
+```
+
+* fix doc
+
+
+
 ## [3.1.0] - 12/05/2022
 * 100% Test Coverage!!.
 * Refactor `AsyncResult`.
