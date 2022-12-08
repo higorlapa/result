@@ -51,7 +51,7 @@ Result<String, Exception> getSomethingPretty() {
 
 ```
 
-#### Handling the Result with `when`
+#### Handling the Result with `when` or `fold`:
 
 ```dart
 void main() {
@@ -69,6 +69,9 @@ void main() {
 
 }
 ```
+** OBS: As we are going through a transition process, the `when` and `fold` syntax are identical. 
+Use whichever one you feel most comfortable with and help us figure out which one should remain in the pack.
+
 
 #### Handling the Result with `onSuccess` or `onError`
 
@@ -118,6 +121,8 @@ void main() {
 }
 ```
 
+## Transforming a Result
+
 #### Mapping success value with `map`
 
 ```dart
@@ -141,7 +146,7 @@ void main() {
 }
 ```
 
-#### Chain others [Result] with `flatMap`
+#### Chain others [Result] by any `Success` value with `flatMap`
 
 ```dart
 
@@ -158,8 +163,17 @@ void main() {
         .flatMap((s) => checkIsEven(s));
 }
 ```
+#### Chain others [Result] by `Error` value with `flatMapError`
 
-#### Add a pure 'Success' value with `pure`
+```dart
+
+void main() {
+    final result = getNumberResult()
+        .flatMapError((e) => checkError(e));
+}
+```
+
+#### Add a pure `Success` value with `pure`
 
 ```dart
 void main() {
@@ -169,6 +183,25 @@ void main() {
     if (result.isSuccess()) {
       mySuccessResult = result.tryGetSuccess(); // 10
     }
+}
+```
+
+#### Add a pure `Error` value with `pureError`
+
+```dart
+void main() {
+    final result = getSomethingPretty().pureError(10);
+    if (result.isError()) {
+       result.tryGetError(); // 10
+    }
+}
+```
+#### Swap a `Result` with `swap`
+
+```dart
+void main() {
+    Result<String, int> result =...;
+    Result<int, String> newResult = result.swap();
 }
 ```
 
@@ -192,7 +225,10 @@ The operators of the **Result** object available in **AsyncResult** are:
 - map
 - mapError
 - flatMap
+- flatMapError
 - pure
+- pureError
+- swap
 
 `AsyncResult<S, E>` is a **typedef** of `Future<Result<S, E>>`.
 
