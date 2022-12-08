@@ -2,11 +2,36 @@ import 'package:multiple_result/multiple_result.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('flatMap', () async {
-    final result = await Success(1) //
-        .toAsyncResult()
-        .flatMap((success) async => Success(success * 2));
-    expect(result.tryGetSuccess(), 2);
+  group('flatMap', () {
+    test('async ', () async {
+      final result = await Success(1) //
+          .toAsyncResult()
+          .flatMap((success) async => Success(success * 2));
+      expect(result.tryGetSuccess(), 2);
+    });
+
+    test('sink', () async {
+      final result = await Success(1) //
+          .toAsyncResult()
+          .flatMap((success) => Success(success * 2));
+      expect(result.tryGetSuccess(), 2);
+    });
+  });
+
+  group('flatMapError', () {
+    test('async ', () async {
+      final result = await Error(1) //
+          .toAsyncResult()
+          .flatMapError((error) async => Error(error * 2));
+      expect(result.tryGetError(), 2);
+    });
+
+    test('sink', () async {
+      final result = await Error(1) //
+          .toAsyncResult()
+          .flatMapError((error) => Error(error * 2));
+      expect(result.tryGetError(), 2);
+    });
   });
 
   test('map', () async {
@@ -28,5 +53,26 @@ void main() {
     final result = await Success(1).toAsyncResult().pure(10);
 
     expect(result.tryGetSuccess(), 10);
+  });
+  test('pureError', () async {
+    final result = await Error(1).toAsyncResult().pureError(10);
+
+    expect(result.tryGetError(), 10);
+  });
+
+  group('swap', () {
+    test('Success to Error', () async {
+      final result = Success<int, String>(0).toAsyncResult();
+      final swap = await result.swap();
+
+      expect(swap.tryGetError(), 0);
+    });
+
+    test('Error to Success', () async {
+      final result = Error<String, int>(0).toAsyncResult();
+      final swap = await result.swap();
+
+      expect(swap.tryGetSuccess(), 0);
+    });
   });
 }
