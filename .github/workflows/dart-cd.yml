@@ -2,7 +2,7 @@ name: Dart PubDev upload
 on:
   push:
     tags:        
-      - '*' 
+      - 'v*' 
 
 jobs:
   upload-to-pubdev:
