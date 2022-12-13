@@ -308,10 +308,24 @@ void main() {
       expect(swap.tryGetSuccess(), 0);
     });
   });
+
+  group('fold', () {
+    test('Success', () {
+      final result = Success<int, String>(0);
+      final futureValue = result.fold(id, (e) => -1);
+      expect(futureValue, 0);
+    });
+
+    test('Error', () {
+      final result = Error<String, int>(0);
+      final futureValue = result.fold(((success) => -1), identity);
+      expect(futureValue, 0);
+    });
+  });
 }
 
-Result<SuccessResult, MyException> getMockedSuccessResult() {
-  return Success(success);
+Result<Unit, MyException> getMockedSuccessResult() {
+  return Success.unit();
 }
 
 class MyUseCase {
