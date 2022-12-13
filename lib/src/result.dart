@@ -55,13 +55,13 @@ abstract class Result<S, E> {
   }
 
   /// Execute [whenSuccess] if the [Result] is a success.
-  R? onSuccess<R>(
-    R Function(S success) whenSuccess,
+  W? onSuccess<W>(
+    W Function(S success) whenSuccess,
   );
 
   /// Execute [whenError] if the [Result] is an error.
-  R? onError<R>(
-    R Function(E error) whenError,
+  W? onError<W>(
+    W Function(E error) whenError,
   );
 
   /// Returns a new `Result`, mapping any `Success` value

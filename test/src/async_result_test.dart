@@ -75,4 +75,72 @@ void main() {
       expect(swap.tryGetSuccess(), 0);
     });
   });
+
+  group('when', () {
+    test('Success', () async {
+      final result = Success<int, String>(0).toAsyncResult();
+      final futureValue = result.when(((success) => success), (e) => -1);
+      expect(futureValue, completion(0));
+    });
+
+    test('Error', () async {
+      final result = Error<String, int>(0).toAsyncResult();
+      final futureValue = result.when(((success) => -1), (e) => e);
+      expect(futureValue, completion(0));
+    });
+  });
+
+  group('fold', () {
+    test('Success', () async {
+      final result = Success<int, String>(0).toAsyncResult();
+      final futureValue = result.fold(((success) => success), (e) => -1);
+      expect(futureValue, completion(0));
+    });
+
+    test('Error', () async {
+      final result = Error<String, int>(0).toAsyncResult();
+      final futureValue = result.fold(((success) => -1), (e) => e);
+      expect(futureValue, completion(0));
+    });
+  });
+
+  group('tryGetSuccess and tryGetError', () {
+    test('Success', () async {
+      final result = Success<int, String>(0).toAsyncResult();
+
+      expect(result.isSuccess(), completion(true));
+      expect(result.tryGetSuccess(), completion(0));
+    });
+
+    test('Error', () async {
+      final result = Error<String, int>(0).toAsyncResult();
+
+      expect(result.isError(), completion(true));
+      expect(result.tryGetError(), completion(0));
+    });
+  });
+
+  group('onSuccess', () {
+    test('Success', () async {
+      final result = Success<int, String>(0).toAsyncResult();
+      expect(result.onSuccess((success) => success), completion(0));
+    });
+
+    test('Error', () async {
+      final result = Error<String, int>(0).toAsyncResult();
+      expect(result.onSuccess((success) => success), completion(isNull));
+    });
+  });
+
+  group('onError', () {
+    test('Success', () async {
+      final result = Success<int, String>(0).toAsyncResult();
+      expect(result.onError((error) => error), completion(isNull));
+    });
+
+    test('Error', () async {
+      final result = Error<String, int>(0).toAsyncResult();
+      expect(result.onError((error) => error), completion(0));
+    });
+  });
 }

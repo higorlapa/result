@@ -213,6 +213,24 @@ Some results do not need a specific return. Use the Unit type to signal an empty
     Result<Unit, Exception>
 ```
 
+## Help with functions that return their parameter:
+
+Sometimes it is necessary to return the parameter of the function as in this example:
+```dart
+final result = Success<int, String>(0);
+
+String value = result.when((s) => '$s', (e) => e);
+print(string) // "0";
+```
+Now we can use the `identity` function or its acronym `id` to facilitate the declaration of this type of function that returns its own parameter and does nothing else:
+```dart
+final result = Success<int, String>(0);
+
+// changed `(e) => e` by `id`
+String value = result.when((s) => '$s', id);
+print(string) // "0";
+```
+
 ## Use **AsyncResult** type:
 
 `AsyncResult<S, E>` represents an asynchronous computation.
@@ -220,15 +238,7 @@ Use this component when working with asynchronous **Result**.
 
 **AsyncResult** has some of the operators of the **Result** object to perform data transformations (**Success** or **Error**) before executing the Future.
 
-The operators of the **Result** object available in **AsyncResult** are:
-
-- map
-- mapError
-- flatMap
-- flatMapError
-- pure
-- pureError
-- swap
+All **Result** operators is available in **AsyncResult**
 
 `AsyncResult<S, E>` is a **typedef** of `Future<Result<S, E>>`.
 

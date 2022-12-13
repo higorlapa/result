@@ -1,4 +1,4 @@
-## [3.2.0] - 12/08/2022
+## [3.2.0] - 12/13/2022
 
 
 * **Change to `flatMap` in `AsyncResult` allowing synchronous `Result` chaining**:<br>
@@ -22,6 +22,26 @@ This new operand will be useful when you need to swap `Success` and `Error`.
 ```dart
 Result<String, int> result =...;
 Result<int, String> newResult = result.swap();
+```
+
+* **Added all Result\`s operators in `AsyncResult`**:<br>
+Now, all operators is avaliables in `AsyncResult` include `when`, `fold`, `tryGetSuccess`, `tryGetError`, `isError`, `isSuccess`, `onSuccess` and `onError`.
+
+* **Help with functions that return their parameter**:<br>
+Sometimes it is necessary to return the parameter of the function as in this example:
+```dart
+final result = Success<int, String>(0);
+
+String value = result.when((s) => '$s', (e) => e);
+print(string) // "0";
+```
+Now we can use the `identity` function or its acronym `id` to facilitate the declaration of this type of function that returns its own parameter and does nothing else:
+```dart
+final result = Success<int, String>(0);
+
+// changed `(e) => e` by `id`
+String value = result.when((s) => '$s', id);
+print(string) // "0";
 ```
 
 * fix doc
