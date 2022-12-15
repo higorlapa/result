@@ -78,6 +78,10 @@ Result<String, Exception> getSomethingPretty() {
 
 ```
 
+> NOTE: The `toSuccess()` and `toError()` methods cannot be used on a `Result` object or a `Future`. If you try, will be throw a Assertion Error.
+
+<br>
+
 #### Handling the Result with `when` or `fold`:
 
 ```dart

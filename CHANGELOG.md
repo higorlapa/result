@@ -1,5 +1,20 @@
 ## [3.2.0] - 12/13/2022
 
+* **Extension to convert any object to the Result type**:
+Use `toSuccess()` and `toError()` method to convert any object (added via extension) into a Result type.
+
+
+```dart
+
+Result<String, Exception> getSomethingPretty() {
+    if(isOk) {
+        return 'OK!'.toSuccess();
+    } else {
+        return Exception('Not Ok!').toError();
+    }
+}
+
+```
 
 * **Change to `flatMap` in `AsyncResult` allowing synchronous `Result` chaining**:<br>
 We noticed that we can receive a `FutureOr` instead of a `Future` in the `flatMap` anonymous function, more specifically in the `AsyncResult`.
