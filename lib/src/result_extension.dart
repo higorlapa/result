@@ -2,7 +2,7 @@ import '../multiple_result.dart';
 
 /// Adds methods for converting any object
 /// into a `Result` type (`Success` or `Error`).
-extension ResultObjectExtends<W> on W {
+extension ResultObjectExtension<W> on W {
   /// Convert the object to a `Result` type [Error].
   ///
   /// Will throw an error if used on a `Result` or `Future` instance.
