@@ -28,13 +28,27 @@ Result<String, Exception> getSomethingPretty() {
 
 in return of the function, you just need to return
 ```dart
+// Normal instance
 return Success('Something Pretty');
+
+// Result factory
+return Result.success('Something Pretty');
+
+// Using extensions
+return 'Something Pretty'.toSuccess();
 ```
 
 or
 
 ```dart
+// Normal instance
 return Error(Exception('something ugly happened...'));
+
+// Result factory
+return Result.error('something ugly happened...');
+
+// Using extensions
+return 'something ugly happened...'.toError();
 ```
 
 The function should look something like this:
@@ -46,6 +60,19 @@ Result<String, Exception> getSomethingPretty() {
         return Success('OK!');
     } else {
         return Error(Exception('Not Ok!'));
+    }
+}
+
+```
+or this (using extensions):
+
+```dart
+
+Result<String, Exception> getSomethingPretty() {
+    if(isOk) {
+        return 'OK!'.toSuccess();
+    } else {
+        return Exception('Not Ok!').toError();
     }
 }
 
