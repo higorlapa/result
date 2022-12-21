@@ -1,7 +1,9 @@
 import 'package:meta/meta.dart';
 
-import 'async_result.dart';
 import 'unit.dart' as type_unit;
+
+/// Alias for [Result]
+typedef ResultOf<S, E> = Result<S, E>;
 
 /// Base Result class
 ///
@@ -35,71 +37,20 @@ abstract class Result<S, E> {
   /// if the result is an error, it will be returned in
   /// [whenError],
   /// if it is a success it will be returned in [whenSuccess].
-  /// <br><br>
-  /// Same of `fold`
   W when<W>(
     W Function(S success) whenSuccess,
     W Function(E error) whenError,
   );
 
-  /// Returns the result of onSuccess for the encapsulated value
-  /// if this instance represents `Success` or the result of onError function
-  /// for the encapsulated value if it is `Error`.
-  /// <br><br>
-  /// Same of `when`
-  W fold<W>(
-    W Function(S success) onSuccess,
-    W Function(E error) onError,
-  ) {
-    return when<W>(onSuccess, onError);
-  }
-
   /// Execute [whenSuccess] if the [Result] is a success.
-  R? onSuccess<R>(
+  R? whenSuccess<R>(
     R Function(S success) whenSuccess,
   );
 
   /// Execute [whenError] if the [Result] is an error.
-  R? onError<R>(
+  R? whenError<R>(
     R Function(E error) whenError,
   );
-
-  /// Returns a new `Result`, mapping any `Success` value
-  /// using the given transformation.
-  Result<W, E> map<W>(W Function(S success) fn) {
-    return when((success) => Success(fn(success)), Error.new);
-  }
-
-  /// Returns a new `Result`, mapping any `Error` value
-  /// using the given transformation.
-  Result<S, W> mapError<W>(W Function(E error) fn) {
-    return when(Success.new, (error) => Error(fn(error)));
-  }
-
-  /// Returns a new `Result`, mapping any `Success` value
-  /// using the given transformation and unwrapping the produced `Result`.
-  Result<W, E> flatMap<W>(Result<W, E> Function(S success) fn);
-
-  /// Returns a new `Result`, mapping any `Error` value
-  /// using the given transformation and unwrapping the produced `Result`.
-  Result<S, W> flatMapError<W>(Result<S, W> Function(E error) fn);
-
-  /// Change the [Success] value.
-  Result<W, E> pure<W>(W success) {
-    return map((_) => success);
-  }
-
-  /// Change the [Error] value.
-  Result<S, W> pureError<W>(W error) {
-    return mapError((_) => error);
-  }
-
-  /// Return a [AsyncResult].
-  AsyncResult<S, E> toAsyncResult() async => this;
-
-  /// Swap the values contained inside the [Success] and [Error]
-  /// of this [Result].
-  Result<E, S> swap();
 }
 
 /// Success Result.
@@ -153,26 +104,11 @@ class Success<S, E> extends Result<S, E> {
   S tryGetSuccess() => _success;
 
   @override
-  R? onError<R>(R Function(E error) whenError) => null;
+  R? whenError<R>(R Function(E error) whenError) => null;
 
   @override
-  R onSuccess<R>(R Function(S success) whenSuccess) {
+  R whenSuccess<R>(R Function(S success) whenSuccess) {
     return whenSuccess(_success);
-  }
-
-  @override
-  Result<W, E> flatMap<W>(Result<W, E> Function(S success) fn) {
-    return fn(_success);
-  }
-
-  @override
-  Result<S, W> flatMapError<W>(Result<S, W> Function(E error) fn) {
-    return Success<S, W>(_success);
-  }
-
-  @override
-  Result<E, S> swap() {
-    return Error(_success);
   }
 }
 
@@ -223,42 +159,8 @@ class Error<S, E> extends Result<S, E> {
   S? tryGetSuccess() => null;
 
   @override
-  R onError<R>(R Function(E error) whenError) => whenError(_error);
+  R whenError<R>(R Function(E error) whenError) => whenError(_error);
 
   @override
-  R? onSuccess<R>(R Function(S success) whenSuccess) => null;
-
-  @override
-  Result<W, E> flatMap<W>(Result<W, E> Function(S success) fn) {
-    return Error<W, E>(_error);
-  }
-
-  @override
-  Result<S, W> flatMapError<W>(Result<S, W> Function(E error) fn) {
-    return fn(_error);
-  }
-
-  @override
-  Result<E, S> swap() {
-    return Success(_error);
-  }
+  R? whenSuccess<R>(R Function(S success) whenSuccess) => null;
 }
-
-/// Default success class.
-///
-/// Instead of returning void, as
-/// ```dart
-///   Result<void, Exception>
-/// ```
-/// return
-/// ```dart
-///   Result<SuccessResult, Exception>
-/// ```
-@Deprecated('Use Unit instead.')
-class SuccessResult {
-  const SuccessResult._internal();
-}
-
-/// Default success case.
-@Deprecated('Use unit instead.')
-const success = SuccessResult._internal();

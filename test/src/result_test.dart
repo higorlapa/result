@@ -127,9 +127,9 @@ void main() {
        when executing onSuccess, 
        should return the result of onSuccess,
       ''', () {
-        final result = getMockedSuccessResult();
+        final result = Success.unit();
         int? onSuccessValue;
-        result.onSuccess((success) {
+        result.whenSuccess((success) {
           onSuccessValue = 10;
         });
         expect(onSuccessValue, 10);
@@ -142,7 +142,7 @@ void main() {
         ''', () {
         final result = useCase.call(returnError: true);
         int? onSuccessValue;
-        result.onSuccess((success) {
+        result.whenSuccess((success) {
           onSuccessValue = 10;
         });
         expect(onSuccessValue, null);
@@ -153,9 +153,9 @@ void main() {
        when executing onError, 
        should return null,
       ''', () {
-        final result = getMockedSuccessResult();
+        final result = Success.unit();
         int? onErrorValue;
-        result.onError((success) {
+        result.whenError((success) {
           onErrorValue = 10;
         });
         expect(onErrorValue, null);
@@ -168,7 +168,7 @@ void main() {
         ''', () {
         final result = useCase.call(returnError: true);
         int? onErrorValue;
-        result.onError((success) {
+        result.whenError((success) {
           onErrorValue = 10;
         });
         expect(onErrorValue, 10);
@@ -183,135 +183,6 @@ void main() {
     expect(Error(1) == Error(1), isTrue);
     expect(Error(1).hashCode == Error(1).hashCode, isTrue);
   });
-
-  group('Map', () {
-    test('Success', () {
-      final result = Success(4);
-      final result2 = result.map((success) => '=' * success);
-
-      expect(result2.tryGetSuccess(), '====');
-    });
-
-    test('Error', () {
-      final result = Error<String, int>(4);
-      final result2 = result.map((success) => 'change');
-
-      expect(result2.tryGetSuccess(), isNull);
-      expect(result2.tryGetError(), 4);
-    });
-  });
-
-  group('MapError', () {
-    test('Success', () {
-      final result = Success<int, int>(4);
-      final result2 = result.mapError((error) => '=' * error);
-
-      expect(result2.tryGetSuccess(), 4);
-      expect(result2.tryGetError(), isNull);
-    });
-
-    test('Error', () {
-      final result = Error<String, int>(4);
-      final result2 = result.mapError((error) => 'change');
-
-      expect(result2.tryGetSuccess(), isNull);
-      expect(result2.tryGetError(), 'change');
-    });
-  });
-
-  group('flatMap', () {
-    test('Success', () {
-      final result = Success<int, int>(4);
-      final result2 = result.flatMap((success) => Success('=' * success));
-
-      expect(result2.tryGetSuccess(), '====');
-    });
-
-    test('Error', () {
-      final result = Error<String, int>(4);
-      final result2 = result.flatMap(Success.new);
-
-      expect(result2.tryGetSuccess(), isNull);
-      expect(result2.tryGetError(), 4);
-    });
-  });
-
-  group('flatMapError', () {
-    test('Error', () {
-      final result = Error<int, int>(4);
-      final result2 = result.flatMapError((error) => Error('=' * error));
-
-      expect(result2.tryGetError(), '====');
-    });
-
-    test('Success', () {
-      final result = Success<int, String>(4);
-      final result2 = result.flatMapError(Error.new);
-
-      expect(result2.tryGetError(), isNull);
-      expect(result2.tryGetSuccess(), 4);
-    });
-  });
-
-  group('pure', () {
-    test('Success', () {
-      final result = Success<int, int>(4) //
-          .pure(6)
-          .map((success) => '=' * success);
-
-      expect(result.tryGetSuccess(), '======');
-    });
-
-    test('Error', () {
-      final result = Error<String, int>(4).pure(6);
-
-      expect(result.tryGetSuccess(), isNull);
-      expect(result.tryGetError(), 4);
-    });
-  });
-
-  group('pureError', () {
-    test('Error', () {
-      final result = Error<int, int>(4) //
-          .pureError(6)
-          .mapError((error) => '=' * error);
-
-      expect(result.tryGetError(), '======');
-    });
-
-    test('Success', () {
-      final result = Success<int, String>(4).pureError(6);
-
-      expect(result.tryGetError(), isNull);
-      expect(result.tryGetSuccess(), 4);
-    });
-  });
-
-  test('toAsyncResult', () {
-    final result = Success(0);
-
-    expect(result.toAsyncResult(), isA<AsyncResult>());
-  });
-
-  group('swap', () {
-    test('Success to Error', () {
-      final result = Success<int, String>(0);
-      final swap = result.swap();
-
-      expect(swap.tryGetError(), 0);
-    });
-
-    test('Error to Success', () {
-      final result = Error<String, int>(0);
-      final swap = result.swap();
-
-      expect(swap.tryGetSuccess(), 0);
-    });
-  });
-}
-
-Result<SuccessResult, MyException> getMockedSuccessResult() {
-  return Success(success);
 }
 
 class MyUseCase {

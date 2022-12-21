@@ -1,5 +1,10 @@
-## [3.2.0] - 12/08/2022
+## 4.0.0 - 12/21/2022
 
+* Major release. [BREAKING] 
+  * Drop the support for every parse/helper method and keep the [Result] simple as it was its initial purpose. 
+  * Rename `onSuccess` and `onError` to `whenSuccess` and `whenError` to match the `when` method.
+
+## [3.2.0] - 12/08/2022
 
 * **Change to `flatMap` in `AsyncResult` allowing synchronous `Result` chaining**:<br>
 We noticed that we can receive a `FutureOr` instead of a `Future` in the `flatMap` anonymous function, more specifically in the `AsyncResult`.
@@ -25,8 +30,6 @@ Result<int, String> newResult = result.swap();
 ```
 
 * fix doc
-
-
 
 ## [3.1.0] - 12/05/2022
 * 100% Test Coverage!!.

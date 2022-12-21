@@ -5,10 +5,14 @@ Result package for dart inspired by the work of [dartz](https://pub.dev/packages
 This package is perfect to those of you who just want the Multiple results
 functionality from dartz. 👌
 
-##### Old version:
+## About version 4.0.0 and previous releases
 
-If you're looking for a non null-safety version, you can find it in [here](https://github.com/higorlapa/result/tree/no-null-safety)
+Versions 3.0.0 to 3.2.0 represented the common effort in making this package better. That's why so many breaking changes
+in just a small time. 
 
+Once these updates stopped (because they decided to fork the project) I decided to remove these updates
+and keep it simple as it was always supposed to be. It's open to suggestions and you should not expect 
+more of these breaking changes any time soon. The package will keep evolving and responding to dart's updates.
 
 ## Use **Result** type:
 
@@ -51,7 +55,7 @@ Result<String, Exception> getSomethingPretty() {
 
 ```
 
-#### Handling the Result with `when` or `fold`:
+#### Handling the Result with `when`:
 
 ```dart
 void main() {
@@ -69,17 +73,14 @@ void main() {
 
 }
 ```
-** OBS: As we are going through a transition process, the `when` and `fold` syntax are identical. 
-Use whichever one you feel most comfortable with and help us figure out which one should remain in the pack.
 
-
-#### Handling the Result with `onSuccess` or `onError`
+#### Handling the Result with `whenSuccess` or `whenError`
 
 ```dart 
     final result = getSomethingPretty();
-    // notice the [onSuccess] or [onError] will only be executed if
+    // notice that [whenSuccess] or [whenError] will only be executed if
     // the result is a Success or an Error respectivaly. 
-    final output = result.onSuccess((name) {
+    final output = result.whenSuccess((name) {
         // handle here the success
         return "";
     });
@@ -87,7 +88,7 @@ Use whichever one you feel most comfortable with and help us figure out which on
     final result = getSomethingPretty();
     
     // [result] is NOT an Error, this [output] will be null.
-    final output = result.onError((exception) {
+    final output = result.whenError((exception) {
         // handle here the error
         return "";
     });
@@ -121,90 +122,6 @@ void main() {
 }
 ```
 
-## Transforming a Result
-
-#### Mapping success value with `map`
-
-```dart
-void main() {
-    final result = getResult()
-        .map((e) => MyObject.fromMap(e));
-
-    result.tryGetSuccess(); //Instance of 'MyObject' 
-}
-```
-
-#### Mapping error value with `mapError`
-
-```dart
-void main() {
-    final result = getResult()
-        .mapError((e) => MyException(e));
-
-    result.tryGetError(); //Instance of 'MyException'
-
-}
-```
-
-#### Chain others [Result] by any `Success` value with `flatMap`
-
-```dart
-
-Result<String, MyException> checkIsEven(String input){
-    if(input % 2 == 0){
-        return Success(input);
-    } else {
-        return Error(MyException('isn`t even!'));
-    }
-}
-
-void main() {
-    final result = getNumberResult()
-        .flatMap((s) => checkIsEven(s));
-}
-```
-#### Chain others [Result] by `Error` value with `flatMapError`
-
-```dart
-
-void main() {
-    final result = getNumberResult()
-        .flatMapError((e) => checkError(e));
-}
-```
-
-#### Add a pure `Success` value with `pure`
-
-```dart
-void main() {
-    final result = getSomethingPretty().pure(10);
-
-    String? mySuccessResult;
-    if (result.isSuccess()) {
-      mySuccessResult = result.tryGetSuccess(); // 10
-    }
-}
-```
-
-#### Add a pure `Error` value with `pureError`
-
-```dart
-void main() {
-    final result = getSomethingPretty().pureError(10);
-    if (result.isError()) {
-       result.tryGetError(); // 10
-    }
-}
-```
-#### Swap a `Result` with `swap`
-
-```dart
-void main() {
-    Result<String, int> result =...;
-    Result<int, String> newResult = result.swap();
-}
-```
-
 ## Unit Type
 
 Some results do not need a specific return. Use the Unit type to signal an empty return.
@@ -212,42 +129,7 @@ Some results do not need a specific return. Use the Unit type to signal an empty
 ```dart
     Result<Unit, Exception>
 ```
+## ResultOf
 
-## Use **AsyncResult** type:
-
-`AsyncResult<S, E>` represents an asynchronous computation.
-Use this component when working with asynchronous **Result**.
-
-**AsyncResult** has some of the operators of the **Result** object to perform data transformations (**Success** or **Error**) before executing the Future.
-
-The operators of the **Result** object available in **AsyncResult** are:
-
-- map
-- mapError
-- flatMap
-- flatMapError
-- pure
-- pureError
-- swap
-
-`AsyncResult<S, E>` is a **typedef** of `Future<Result<S, E>>`.
-
-```dart
-
-AsyncResult<String, Exception> fetchProducts() async {
-    try {
-      final response = await dio.get('/products');
-      final products = ProductModel.fromList(response.data);
-      return Success(products);
-    } on DioError catch (e) {
-      return Error(ProductException(e.message));
-    }
-}
-
-...
-
-final state = await fetch()
-    .map((products) => LoadedState(products))
-    .mapLeft((error) => ErrorState(error))
-
-```
+You may have noticed the `ResultOf` typedef. It represents a better readability for `Result`, but as 
+it would be another breaking change, leaving it as an alias would be good enough. 
