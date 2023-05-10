@@ -1,6 +1,7 @@
-import 'package:meta/meta.dart';
-
 import 'unit.dart' as type_unit;
+
+typedef SuccessCallback<W, S> = W Function(S success);
+typedef ErrorCallback<W, E> = W Function(E error);
 
 /// Alias for [Result]
 typedef ResultOf<S, E> = Result<S, E>;
@@ -9,8 +10,7 @@ typedef ResultOf<S, E> = Result<S, E>;
 ///
 /// Receives two values [E] and [S]
 /// as [E] is an error and [S] is a success.
-@sealed
-abstract class Result<S, E> {
+sealed class Result<S, E> {
   /// Default constructor.
   const Result();
 
@@ -32,14 +32,13 @@ abstract class Result<S, E> {
   /// Returns true if the current result is a [Success].
   bool isSuccess();
 
-  /// Return the result in one of these functions.
+  /// Handle the result when success or error
   ///
-  /// if the result is an error, it will be returned in
-  /// [whenError],
-  /// if it is a success it will be returned in [whenSuccess].
+  /// if the result is an error, it will be returned in [whenError]
+  /// if it is a success it will be returned in [whenSuccess]
   W when<W>(
-    W Function(S success) whenSuccess,
-    W Function(E error) whenError,
+    SuccessCallback<W, S> whenSuccess,
+    ErrorCallback<W, E> whenError,
   );
 
   /// Execute [whenSuccess] if the [Result] is a success.
@@ -57,8 +56,7 @@ abstract class Result<S, E> {
 ///
 /// return it when the result of a [Result] is
 /// the expected value.
-@immutable
-class Success<S, E> extends Result<S, E> {
+final class Success<S, E> extends Result<S, E> {
   /// Receives the [S] param as
   /// the successful result.
   const Success(
@@ -91,11 +89,13 @@ class Success<S, E> extends Result<S, E> {
 
   @override
   W when<W>(
-    W Function(S success) whenSuccess,
-    W Function(E error) whenError,
-  ) {
-    return whenSuccess(_success);
-  }
+    SuccessCallback<W, S> whenSuccess,
+    ErrorCallback<W, E> whenError,
+  ) =>
+      whenSuccess(_success);
+
+  /// Success value
+  S get success => _success;
 
   @override
   E? tryGetError() => null;
@@ -116,8 +116,7 @@ class Success<S, E> extends Result<S, E> {
 ///
 /// return it when the result of a [Result] is
 /// not the expected value.
-@immutable
-class Error<S, E> extends Result<S, E> {
+final class Error<S, E> extends Result<S, E> {
   /// Receives the [E] param as
   /// the error result.
   const Error(this._error);
@@ -131,6 +130,9 @@ class Error<S, E> extends Result<S, E> {
   }
 
   final E _error;
+
+  /// Error value
+  E get error => _error;
 
   @override
   bool isError() => true;
@@ -146,11 +148,10 @@ class Error<S, E> extends Result<S, E> {
 
   @override
   W when<W>(
-    W Function(S succcess) whenSuccess,
-    W Function(E error) whenError,
-  ) {
-    return whenError(_error);
-  }
+    SuccessCallback<W, S> whenSuccess,
+    ErrorCallback<W, E> whenError,
+  ) =>
+      whenError(_error);
 
   @override
   E tryGetError() => _error;

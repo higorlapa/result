@@ -1,90 +1,60 @@
-import 'package:flutter/material.dart';
 import 'package:multiple_result/multiple_result.dart';
 
 void main() {
-  runApp(MyApp());
-}
+  final resultNameOrError = _getName();
+  _handleResultInSwitch(resultNameOrError);
+  final resultForcedNameOrError = _getName(forceError: true);
+  _handleResultInWhen(resultForcedNameOrError);
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+  _handleWithDirectionalFunction(
+    result: resultNameOrError,
+    forcedErrorResult: resultForcedNameOrError,
+  );
+
+  // Example with if case
+  if (resultNameOrError case Success()) {
+    print(resultNameOrError.success);
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          final result = _shouldIncrement(_counter);
-          result.when(
-            (success) {
-              setState(() {
-                _counter++;
-              });
-            },
-            (error) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(error.message),
-                ),
-              );
-            },
-          );
-        },
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-
-  Result<bool, IncrementException> _shouldIncrement(int currentCount) {
-    if (currentCount + 1 == 10) {
-      return Error(IncrementException("counter can't be bigger than 9"));
-    } else {
-      return Success(true);
-    }
+void _handleResultInSwitch(Result<String, Exception> result) {
+  switch (result) {
+    case Success():
+      print("result - success: ${result.success} handled by switch");
+      break;
+    case Error():
+      print("result - error: ${result.error} handled by switch");
+      break;
   }
 }
 
-class IncrementException implements Exception {
-  final String message;
+void _handleResultInWhen(Result<String, Exception> result) {
+  result.when(
+    (success) {
+      print("result - success: ${success} handled by switch");
+    },
+    (error) {
+      print("result - error: ${error} handled by switch");
+    },
+  );
+}
 
-  IncrementException(this.message);
+void _handleWithDirectionalFunction({
+  required Result<String, Exception> result,
+  required Result<String, Exception> forcedErrorResult,
+}) {
+  result.whenSuccess((success) {
+    print("handled success by directional function. Result: $success");
+  });
+
+  result.whenError((success) {
+    print("handled success by directional function. Result: $success");
+  });
+}
+
+ResultOf<String, Exception> _getName({bool forceError = false}) {
+  if (forceError) {
+    return Result.error(Exception("Error forced"));
+  }
+  return Result.success("Higor");
 }

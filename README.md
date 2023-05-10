@@ -55,6 +55,23 @@ Result<String, Exception> getSomethingPretty() {
 
 ```
 
+#### Handling the Result with `switch`:
+
+```dart
+void main() {
+  final result = getSomethingPretty();
+  switch(result) {
+    case Success():
+      print("${result.success}");
+      break;
+    case Error():
+      print("${result.error}");
+      break;
+  }
+}
+
+```
+
 #### Handling the Result with `when`:
 
 ```dart
@@ -72,6 +89,19 @@ void main() {
     );
 
 }
+```
+
+#### Handling the Result with `if case`:
+
+```dart
+void main() {
+  final result = getSomethingPretty();
+  if(result case Success()) {
+    // access to .success value
+    print("${result.success}");
+  }
+}
+
 ```
 
 #### Handling the Result with `whenSuccess` or `whenError`
