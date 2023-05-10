@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:multiple_result/multiple_result.dart';
 import 'package:test/test.dart';
 
@@ -195,7 +194,6 @@ class MyUseCase {
   }
 }
 
-@immutable
 class MyException implements Exception {
   final String message;
 
@@ -209,7 +207,6 @@ class MyException implements Exception {
       other is MyException && other.message == message;
 }
 
-@immutable
 class MyResult {
   MyResult(this.value);
 
