@@ -1,3 +1,7 @@
+## 5.0.0 05/10/2022
+
+* Supports new dart 3 features
+
 ## 4.0.0 - 12/21/2022
 
 * Major release. [BREAKING] 
@@ -25,7 +29,7 @@ Help us figure out which one to remove in the near future.
 * **SWAP**:<br>
 This new operand will be useful when you need to swap `Success` and `Error`.
 ```dart
-Result<String, int> result =...;
+Result<String, int> result = getResult();
 Result<int, String> newResult = result.swap();
 ```
 
