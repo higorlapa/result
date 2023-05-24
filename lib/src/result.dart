@@ -14,7 +14,7 @@ sealed class Result<S, E> {
   /// Default constructor.
   const Result();
 
-  /// Build a [Result] that returns a [Error].
+  /// Build a [Result] that returns a [Success].
   factory Result.success(S s) => Success(s);
 
   /// Build a [Result] that returns a [Error].
