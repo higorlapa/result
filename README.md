@@ -124,6 +124,20 @@ void main() {
     });
 ```
 
+#### Handling the Result with `getOrThrow`
+
+You may use the `getOrThrow` to get the value when you're sure that the result was a `Success`.
+Be aware that accessing this method when the result is actually an `Error` will throw a `SuccessResultNotFoundException`.
+
+```dart
+    final result = getSomethingPretty();
+
+    if (result.isSuccess()) {
+      final mySuccessResult = result.getOrThrow();
+    }
+```
+
+
 #### Handling the Result with `tryGetSuccess`
 
 ```dart

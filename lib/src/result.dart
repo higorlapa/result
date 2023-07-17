@@ -15,10 +15,21 @@ sealed class Result<S, E> {
   const Result();
 
   /// Build a [Result] that returns a [Success].
-  factory Result.success(S s) => Success(s);
+  const factory Result.success(S s) = Success;
 
   /// Build a [Result] that returns a [Error].
-  factory Result.error(E e) => Error(e);
+  const factory Result.error(E e) = Error;
+
+  /// Get the [S] value IF it is a [Success].
+  ///
+  /// It may throw [SuccessResultNotFoundException] if this result is actually
+  /// an [Error] of [E].
+  ///
+  /// Make sure to use [isSuccess] or `if (result case Success())` before
+  /// accessing this method.
+  ///
+  /// You can also use [tryGetSuccess] if you're unsure of the possible result.
+  S getOrThrow();
 
   /// Returns the value of [S] if any.
   S? tryGetSuccess();
@@ -98,6 +109,9 @@ final class Success<S, E> extends Result<S, E> {
   S get success => _success;
 
   @override
+  S getOrThrow() => _success;
+
+  @override
   E? tryGetError() => null;
 
   @override
@@ -154,6 +168,9 @@ final class Error<S, E> extends Result<S, E> {
       whenError(_error);
 
   @override
+  S getOrThrow() => throw SuccessResultNotFoundException();
+
+  @override
   E tryGetError() => _error;
 
   @override
@@ -164,4 +181,19 @@ final class Error<S, E> extends Result<S, E> {
 
   @override
   R? whenSuccess<R>(R Function(S success) whenSuccess) => null;
+}
+
+/// Thrown when getting the [S] type when none is available.
+final class SuccessResultNotFoundException<S, E> implements Exception {
+  const SuccessResultNotFoundException();
+
+  @override
+  String toString() {
+    return '''
+      Tried to get the success value of [$S], but none was found. 
+      Make sure you're checking for `isSuccess` before trying to get it through
+      `getOrThrow`. You can also use `tryGetSuccess` if you're unsure or 
+      `if (result case Success())`
+    ''';
+  }
 }

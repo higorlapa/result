@@ -182,6 +182,29 @@ void main() {
     expect(Error(1) == Error(1), isTrue);
     expect(Error(1).hashCode == Error(1).hashCode, isTrue);
   });
+
+  group("getOrThrow", () {
+    test(
+        "When accessing `getOrThrow` with a Success result, should return the Success value",
+        () {
+      final result = useCase.call();
+
+      expect(result.getOrThrow(), isA<MyResult>());
+    });
+
+    test(
+        "When accessing `getOrThrow` with a Error result, should throw SuccessResultNotFoundException",
+        () {
+      final result = useCase.call(returnError: true);
+
+      expect(
+        () => result.getOrThrow(),
+        throwsA(
+          isA<SuccessResultNotFoundException>(),
+        ),
+      );
+    });
+  });
 }
 
 class MyUseCase {

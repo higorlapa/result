@@ -56,5 +56,5 @@ ResultOf<String, Exception> _getName({bool forceError = false}) {
   if (forceError) {
     return Result.error(Exception("Error forced"));
   }
-  return Result.success("Higor");
+  return const Result.success("Higor");
 }

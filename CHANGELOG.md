@@ -1,4 +1,8 @@
-## 5.0.0 05/10/2022
+## 5.1.0 07/17/2023
+
+* Adds [getOrThrow] method
+
+## 5.0.0 05/10/2023
 
 * Supports new dart 3 features
 
