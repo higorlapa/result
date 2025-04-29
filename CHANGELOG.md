@@ -1,6 +1,7 @@
 ## 5.1.1 04/29/2025
 
 * Improves README.md
+* Improves result.dart public doc
 
 ## 5.1.0 07/17/2023
 
