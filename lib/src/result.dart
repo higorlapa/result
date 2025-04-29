@@ -8,56 +8,59 @@ typedef ResultOf<S, E> = Result<S, E>;
 
 /// Base Result class
 ///
-/// Receives two values [E] and [S]
-/// as [E] is an error and [S] is a success.
+/// Takes two type parameters: [S] for success and [E] for error.
+/// Use this class to handle operations that can either succeed or fail.
 sealed class Result<S, E> {
   /// Default constructor.
   const Result();
 
-  /// Build a [Result] that returns a [Success].
+  /// Creates a [Result] that represents a successful operation.
   const factory Result.success(S s) = Success;
 
-  /// Build a [Result] that returns a [Error].
+  /// Creates a [Result] that represents a failed operation.
   const factory Result.error(E e) = Error;
 
-  /// Get the [S] value IF it is a [Success].
+  /// Gets the success value if this result is a [Success].
   ///
-  /// It may throw [SuccessResultNotFoundException] if this result is actually
-  /// an [Error] of [E].
+  /// Throws [SuccessResultNotFoundException] if this result is an [Error].
   ///
-  /// Make sure to use [isSuccess] or `if (result case Success())` before
-  /// accessing this method.
+  /// Make sure to check [isSuccess] or use pattern matching like
+  /// `if (result case Success())` before calling this method.
   ///
-  /// You can also use [tryGetSuccess] if you're unsure of the possible result.
+  /// Alternatively, use [tryGetSuccess] if you're unsure of the result type.
   S getOrThrow();
 
-  /// Returns the value of [S] if any.
+  /// Returns the success value if available, otherwise null.
   S? tryGetSuccess();
 
-  /// Returns the value of [E] if any.
+  /// Returns the error value if available, otherwise null.
   E? tryGetError();
 
-  /// Returns true if the current result is an [Error].
+  /// Returns true if this result is an [Error].
   bool isError();
 
-  /// Returns true if the current result is a [Success].
+  /// Returns true if this result is a [Success].
   bool isSuccess();
 
-  /// Handle the result when success or error
+  /// Handles both success and error cases with respective callbacks.
   ///
-  /// if the result is an error, it will be returned in [whenError]
-  /// if it is a success it will be returned in [whenSuccess]
+  /// If this result is a success, [whenSuccess] will be called with the success value.
+  /// If this result is an error, [whenError] will be called with the error value.
   W when<W>(
     SuccessCallback<W, S> whenSuccess,
     ErrorCallback<W, E> whenError,
   );
 
-  /// Execute [whenSuccess] if the [Result] is a success.
+  /// Executes [whenSuccess] if this result is a success.
+  ///
+  /// Returns null if this result is an error.
   R? whenSuccess<R>(
     R Function(S success) whenSuccess,
   );
 
-  /// Execute [whenError] if the [Result] is an error.
+  /// Executes [whenError] if this result is an error.
+  ///
+  /// Returns null if this result is a success.
   R? whenError<R>(
     R Function(E error) whenError,
   );
@@ -65,16 +68,14 @@ sealed class Result<S, E> {
 
 /// Success Result.
 ///
-/// return it when the result of a [Result] is
-/// the expected value.
+/// Use this class to represent a successful operation with a value of type [S].
 final class Success<S, E> extends Result<S, E> {
-  /// Receives the [S] param as
-  /// the successful result.
+  /// Creates a Success result with the given value.
   const Success(
     this._success,
   );
 
-  /// Build a `Success` with `Unit` value.
+  /// Creates a Success result with a Unit value.
   /// ```dart
   /// Success.unit() == Success(unit)
   /// ```
@@ -105,7 +106,7 @@ final class Success<S, E> extends Result<S, E> {
   ) =>
       whenSuccess(_success);
 
-  /// Success value
+  /// The success value
   S get success => _success;
 
   @override
@@ -128,14 +129,12 @@ final class Success<S, E> extends Result<S, E> {
 
 /// Error Result.
 ///
-/// return it when the result of a [Result] is
-/// not the expected value.
+/// Use this class to represent a failed operation with an error of type [E].
 final class Error<S, E> extends Result<S, E> {
-  /// Receives the [E] param as
-  /// the error result.
+  /// Creates an Error result with the given error value.
   const Error(this._error);
 
-  /// Build a `Error` with `Unit` value.
+  /// Creates an Error result with a Unit value.
   /// ```dart
   /// Error.unit() == Error(unit)
   /// ```
@@ -145,7 +144,7 @@ final class Error<S, E> extends Result<S, E> {
 
   final E _error;
 
-  /// Error value
+  /// The error value
   E get error => _error;
 
   @override
@@ -183,7 +182,7 @@ final class Error<S, E> extends Result<S, E> {
   R? whenSuccess<R>(R Function(S success) whenSuccess) => null;
 }
 
-/// Thrown when getting the [S] type when none is available.
+/// Exception thrown when attempting to access a success value that doesn't exist.
 final class SuccessResultNotFoundException<S, E> implements Exception {
   const SuccessResultNotFoundException();
 
@@ -191,9 +190,9 @@ final class SuccessResultNotFoundException<S, E> implements Exception {
   String toString() {
     return '''
       Tried to get the success value of [$S], but none was found. 
-      Make sure you're checking for `isSuccess` before trying to get it through
-      `getOrThrow`. You can also use `tryGetSuccess` if you're unsure or 
-      `if (result case Success())`
+      Make sure you check [isSuccess] before calling [getOrThrow], or use 
+      [tryGetSuccess] if you're unsure of the result type. Alternatively, 
+      you can use pattern matching with `if (result case Success())`.
     ''';
   }
 }
