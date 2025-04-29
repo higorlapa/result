@@ -51,7 +51,7 @@ Future<Result<String, Exception>> getSomething() async {
 
 ```dart
 void main() {
-  final result = getSomethingPretty();
+  final result = getSomething();
   switch(result) {
     case Success():
       print("${result.success}");
@@ -61,6 +61,16 @@ void main() {
       break;
   }
 }
+```
+
+Or with Switch Expression:
+
+```Dart
+  final result = await getSomething();
+  final output = switch (result) {
+    Success(success: var s) => processSuccess(s),
+    Error(error: var e) => handleError(e)
+  };
 ```
 
 #### Using `when`:
@@ -152,6 +162,94 @@ void main() {
     }
 }
 ```
+
+## Using `getBoth`
+
+The `getBoth` method returns a record (Dart's named tuple) containing both the success and error values of a `Result`. 
+Only one of these will be non-null, depending on whether the result is a `Success` or an `Error`.
+
+- If the result is a `Success`, the `success` field will contain the value, and `error` will be `null`.
+- If the result is an `Error`, the `error` field will contain the error, and `success` will be `null`.
+
+This is useful for destructuring or pattern matching without having to check the type explicitly.
+
+**Example:**
+
+```dart
+void main() {
+  final result = getSomething();
+  final (:success, :error) = result.getBoth();
+  
+  if (success != null) {
+    print("Success: $success");
+  } else {
+    print("Error: $error");
+  }
+}
+```
+
+## Transforming Results
+
+The Result class provides several methods for transforming values while preserving the success/error structure:
+
+### Using `map`
+
+The `map` method transforms both the success and error values of a Result:
+
+```dart
+Result<int, Exception> result = fetchNumber();
+Result<String, String> transformed = result.map(
+  successMapper: (number) => number.toString(),
+  errorMapper: (exception) => exception.toString()
+);
+```
+
+### Using `mapSuccess`
+
+The `mapSuccess` method transforms only the success value, preserving any error:
+
+```dart
+Result<int, Exception> result = fetchNumber();
+Result<String, Exception> transformed = result.mapSuccess(
+  (number) => number.toString()
+);
+```
+
+### Using `mapError`
+
+The `mapError` method transforms only the error value, preserving any success:
+
+```dart
+Result<int, Exception> result = fetchNumber();
+Result<int, String> transformed = result.mapError(
+  (exception) => exception.toString()
+);
+```
+
+### Using `flatMap`
+
+The `flatMap` method is powerful for chaining operations that can fail. Unlike `mapSuccess` which wraps the returned value in a Result, `flatMap` expects your function to return a Result directly:
+
+```dart
+Result<int, String> fetchNumber() => Success(5);
+
+Result<String, String> parseNumber(int n) {
+  if (n > 0) {
+    return Success(n.toString());
+  } else {
+    return Error("Cannot parse negative numbers");
+  }
+}
+
+// Chain operations that might fail
+Result<String, String> result = fetchNumber().flatMap(
+  (number) => parseNumber(number)
+);
+```
+
+The key difference between `mapSuccess` and `flatMap`:
+- `mapSuccess` takes a function that returns a value `T` and wraps it in a Result
+- `flatMap` takes a function that returns a Result directly, avoiding nested Results
 
 ## Unit Type
 

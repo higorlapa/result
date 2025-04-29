@@ -1,7 +1,9 @@
-## 5.1.1 04/29/2025
+## 5.2.0 04/29/2025
 
 * Improves README.md
 * Improves result.dart public doc
+* Adds functional programming methods: `map`, `mapSuccess`, `mapError`, and `flatMap`
+* Adds `getBoth` method 
 
 ## 5.1.0 07/17/2023
 
