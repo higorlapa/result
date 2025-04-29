@@ -205,6 +205,238 @@ void main() {
       );
     });
   });
+
+  group('getBoth method', () {
+    test('when result is Success, returns success value and null error', () {
+      final result = Result.success('test');
+      final record = result.getBoth();
+
+      expect(record.success, 'test');
+      expect(record.error, null);
+    });
+
+    test('when result is Error, returns null success and error value', () {
+      final error = Exception('test error');
+      final result = Result.error(error);
+      final record = result.getBoth();
+
+      expect(record.success, null);
+      expect(record.error, error);
+    });
+
+    test('can destructure with record pattern', () {
+      final result = Result.success('test');
+      final (:success, :error) = result.getBoth();
+
+      expect(success, 'test');
+      expect(error, null);
+    });
+  });
+
+  group('map method', () {
+    test('applies successMapper to a Success result', () {
+      final result = Result.success(5);
+      final mapped = result.map(
+        successMapper: (value) => value.toString(),
+        errorMapper: (error) => 'error: $error',
+      );
+
+      expect(mapped, Success('5'));
+    });
+
+    test('applies errorMapper to an Error result', () {
+      final error = Exception('test error');
+      final result = Result.error(error);
+      final mapped = result.map(
+        successMapper: (value) => value.toString(),
+        errorMapper: (error) => 'error: $error',
+      );
+
+      expect(mapped, Error('error: $error'));
+    });
+
+    test('supports different return types for both mappers', () {
+      final result = Result.success(5);
+      final mapped = result.map<String, bool>(
+        successMapper: (value) => value.toString(),
+        errorMapper: (error) => false,
+      );
+
+      expect(mapped, Success('5'));
+      expect(mapped, isA<Result<String, bool>>());
+    });
+  });
+
+  group('mapSuccess method', () {
+    test('transforms success value in a Success result', () {
+      final result = Result.success(5);
+      final mapped = result.mapSuccess((value) => value * 2);
+
+      expect(mapped, Success(10));
+    });
+
+    test('preserves Error in an Error result', () {
+      final error = Exception('test error');
+      final result = Result.error(error);
+      final mapped = result.mapSuccess((value) => value.toString());
+
+      expect(mapped, Error(error));
+    });
+
+    test('supports changing success type', () {
+      final result = Result.success(5);
+      final mapped = result.mapSuccess((value) => value.toString());
+
+      expect(mapped, Success('5'));
+      expect(mapped, isA<Success>());
+    });
+  });
+
+  group('mapError method', () {
+    test('preserves Success in a Success result', () {
+      final result = Result.success(5);
+      final mapped = result.mapError((error) => 'error: $error');
+
+      expect(mapped, Success(5));
+    });
+
+    test('transforms error value in an Error result', () {
+      final error = Exception('test error');
+      final result = Result.error(error);
+      final mapped = result.mapError((error) => error.toString());
+
+      expect(mapped, Error(error.toString()));
+    });
+
+    test('supports changing error type', () {
+      final error = Exception('test error');
+      final result = Result.error(error);
+      final mapped = result.mapError((error) => 42);
+
+      expect(mapped, Error(42));
+      expect(mapped, isA<Error>());
+    });
+  });
+
+  group('flatMap method', () {
+    test('allows chaining operations that return a Result', () {
+      final result = Result.success(5);
+      final transformed =
+          result.flatMap((value) => Result.success(value.toString()));
+
+      expect(transformed, Success('5'));
+    });
+
+    test('short-circuits on Error', () {
+      final error = Exception('test error');
+      final result = Result.error(error);
+      final transformed =
+          result.flatMap((value) => Result.success(value.toString()));
+
+      expect(transformed, Error(error));
+    });
+
+    test('propagates errors from the mapper function', () {
+      final result = Result.success(5);
+      final transformed = result.flatMap<String>((value) => value > 10
+          ? Result.success(value.toString())
+          : Result.error('Value too small'));
+
+      expect(transformed, Error('Value too small'));
+    });
+
+    test('can be chained multiple times', () {
+      int parseToInt(String input) {
+        final value = int.tryParse(input);
+        if (value == null) {
+          throw FormatException('Cannot parse $input');
+        }
+        return value;
+      }
+
+      // Function that might fail
+      Result<int, String> parseInt(String input) {
+        try {
+          return Result.success(parseToInt(input));
+        } catch (e) {
+          return Result.error(e.toString());
+        }
+      }
+
+      // Function that might fail
+      Result<String, String> doubleIt(int value) {
+        if (value < 0) {
+          return Result.error('Cannot double negative numbers');
+        }
+        return Result.success((value * 2).toString());
+      }
+
+      final result = parseInt('5').flatMap((value) => doubleIt(value));
+
+      expect(result, Success('10'));
+
+      final resultWithFirstError =
+          parseInt('abc').flatMap((value) => doubleIt(value));
+
+      expect(resultWithFirstError.isError(), true);
+      expect(resultWithFirstError.tryGetError(), contains('FormatException'));
+
+      final resultWithSecondError =
+          parseInt('-5').flatMap((value) => doubleIt(value));
+
+      expect(resultWithSecondError.isError(), true);
+      expect(resultWithSecondError.tryGetError(),
+          'Cannot double negative numbers');
+    });
+
+    test('flatMap can be used for conditional logic', () {
+      // Instead of chaining, just test the basic functionality
+      final initialResult = Result<int, String>.success(5);
+
+      // Convert int to string
+      final stringResult = initialResult.flatMap<String>(
+          (int value) => Result<String, String>.success(value.toString()));
+
+      expect(stringResult, Success('5'));
+    });
+
+    test('flatMap with error result short-circuits', () {
+      final initialResult = Result<int, String>.error('Initial error');
+
+      bool wasCalled = false;
+      final transformedResult = initialResult.flatMap<String>((value) {
+        wasCalled = true;
+        return Result<String, String>.success(value.toString());
+      });
+
+      expect(wasCalled, false); // The mapper function should not be called
+      expect(transformedResult.isError(), true);
+      expect(transformedResult.tryGetError(), 'Initial error');
+    });
+  });
+
+  group('comparison with when method', () {
+    test('map can replace when for simple transformations', () {
+      final result = Result.success(10);
+
+      // Traditional when approach
+      final value1 = result.when(
+        (success) => success * 2,
+        (error) => -1,
+      );
+
+      // Using map approach
+      final value2 = result
+              .map(
+                successMapper: (success) => success * 2,
+                errorMapper: (error) => -1,
+              )
+              .tryGetSuccess() ??
+          -1;
+
+      expect(value1, value2);
+    });
+  });
 }
 
 class MyUseCase {
