@@ -64,6 +64,51 @@ sealed class Result<S, E> {
   R? whenError<R>(
     R Function(E error) whenError,
   );
+
+  /// Returns a tuple containing the success and error values.
+  ///
+  /// If this result is a success, the first element will be the success value
+  /// and the second element will be null.
+  ///
+  /// If this result is an error, the first element will be null and the second
+  /// element will be the error value.
+  ({S? success, E? error}) getBoth();
+
+  /// Transforms both success and error values of this result.
+  ///
+  /// If this result is a success, applies [successMapper] to the success value.
+  /// If this result is an error, applies [errorMapper] to the error value.
+  ///
+  /// Returns a new [Result] with the transformed values.
+  Result<U, F> map<U, F>({
+    required U Function(S success) successMapper,
+    required F Function(E error) errorMapper,
+  });
+
+  /// Transforms only the success value of this result.
+  ///
+  /// If this result is a success, applies [mapper] to the success value.
+  /// If this result is an error, returns a new error result with the same error value.
+  ///
+  /// Returns a new [Result] with the transformed success value or the original error.
+  Result<U, E> mapSuccess<U>(U Function(S success) mapper);
+
+  /// Transforms only the error value of this result.
+  ///
+  /// If this result is an error, applies [mapper] to the error value.
+  /// If this result is a success, returns a new success result with the same success value.
+  ///
+  /// Returns a new [Result] with the transformed error value or the original success.
+  Result<S, F> mapError<F>(F Function(E error) mapper);
+
+  /// Transforms the success value of this result to another result.
+  ///
+  /// If this result is a success, applies [mapper] to the success value to produce
+  /// a new result. If this result is an error, returns a new error result with the
+  /// same error value.
+  ///
+  /// This method is useful for chaining operations that might fail without nesting results.
+  Result<U, E> flatMap<U>(Result<U, E> Function(S success) mapper);
 }
 
 /// Success Result.
@@ -125,6 +170,32 @@ final class Success<S, E> extends Result<S, E> {
   R whenSuccess<R>(R Function(S success) whenSuccess) {
     return whenSuccess(_success);
   }
+
+  @override
+  ({S? success, E? error}) getBoth() => (success: _success, error: null);
+
+  @override
+  Result<U, F> map<U, F>({
+    required U Function(S success) successMapper,
+    required F Function(E error) errorMapper,
+  }) {
+    return Success<U, F>(successMapper(_success));
+  }
+
+  @override
+  Result<U, E> mapSuccess<U>(U Function(S success) mapper) {
+    return Success<U, E>(mapper(_success));
+  }
+
+  @override
+  Result<S, F> mapError<F>(F Function(E error) mapper) {
+    return Success<S, F>(_success);
+  }
+
+  @override
+  Result<U, E> flatMap<U>(Result<U, E> Function(S success) mapper) {
+    return mapper(_success);
+  }
 }
 
 /// Error Result.
@@ -180,6 +251,32 @@ final class Error<S, E> extends Result<S, E> {
 
   @override
   R? whenSuccess<R>(R Function(S success) whenSuccess) => null;
+
+  @override
+  ({S? success, E? error}) getBoth() => (success: null, error: _error);
+
+  @override
+  Result<U, F> map<U, F>({
+    required U Function(S success) successMapper,
+    required F Function(E error) errorMapper,
+  }) {
+    return Error<U, F>(errorMapper(_error));
+  }
+
+  @override
+  Result<U, E> mapSuccess<U>(U Function(S success) mapper) {
+    return Error<U, E>(_error);
+  }
+
+  @override
+  Result<S, F> mapError<F>(F Function(E error) mapper) {
+    return Error<S, F>(mapper(_error));
+  }
+
+  @override
+  Result<U, E> flatMap<U>(Result<U, E> Function(S success) mapper) {
+    return Error<U, E>(_error);
+  }
 }
 
 /// Exception thrown when attempting to access a success value that doesn't exist.
