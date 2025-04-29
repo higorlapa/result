@@ -1,61 +1,53 @@
 # multiple_result
 
-Result package for dart inspired by the work of [dartz](https://pub.dev/packages/dartz)'s Either and Kotlin's sealed classes.
+A Result package for Dart inspired by [dartz](https://pub.dev/packages/dartz)'s Either type and Kotlin's sealed classes.
 
-This package is perfect to those of you who just want the Multiple results
+This package is perfect for those who just want the multiple results 
 functionality from dartz. 👌
 
-## About version 4.0.0 and previous releases
+## Using the **Result** type:
 
-Versions 3.0.0 to 3.2.0 represented the common effort in making this package better. That's why so many breaking changes
-in just a small time. 
-
-Once these updates stopped (because they decided to fork the project) I decided to remove these updates
-and keep it simple as it was always supposed to be. It's open to suggestions and you should not expect 
-more of these breaking changes any time soon. The package will keep evolving and responding to dart's updates.
-
-## Use **Result** type:
-
-In the return of a function, set it to return a Result type;
+In your function signature, declare it to return a Result type:
 ```dart
-Result getSomethingPretty();
+Result getSomething();
 ```
-then add the Success and the Error types.
+Then specify the Success and Error types:
 
 ```dart
-
-Result<String, Exception> getSomethingPretty() {
+Result<String, Exception> getSomething() {
 
 }
-
 ```
 
-in return of the function, you just need to return
+When returning from the function, simply use:
 ```dart
-return Success('Something Pretty');
+return Success('Success!');
 ```
 
 or
 
 ```dart
-return Error(Exception('something ugly happened...'));
+return Error(Exception('Some error happened...'));
 ```
 
-The function should look something like this:
+A complete function looks like this:
 
 ```dart
-
-Result<String, Exception> getSomethingPretty() {
-    if(isOk) {
-        return Success('OK!');
-    } else {
-        return Error(Exception('Not Ok!'));
+Future<Result<String, Exception>> getSomething() async {
+    
+    try {
+      final response = await _api.get('/foo');
+      final data = response.data['bar'];
+      return Success(data);
+    } catch(e) {
+      return Error(e);
     }
 }
-
 ```
 
-#### Handling the Result with `switch`:
+### Handling Results
+
+#### Using `switch`:
 
 ```dart
 void main() {
@@ -69,47 +61,44 @@ void main() {
       break;
   }
 }
-
 ```
 
-#### Handling the Result with `when`:
+#### Using `when`:
 
 ```dart
 void main() {
-    final result = getSomethingPretty();
-     final String message = result.when(
-        (success) {
+    final result = await getSomething();
+    final String message = result.when(
+        (data) {
           // handle the success here
-          return "success";
+          return "Successfully fetched data: $data";
         },
-         (error) {
+        (error) {
           // handle the error here
-          return "error";
+          return "error: $error";
         },
     );
-
 }
 ```
 
-#### Handling the Result with `if case`:
+#### Using `if case`:
 
 ```dart
 void main() {
-  final result = getSomethingPretty();
+  final result = getSomething();
   if(result case Success()) {
     // access to .success value
     print("${result.success}");
   }
 }
-
 ```
 
-#### Handling the Result with `whenSuccess` or `whenError`
+#### Using `whenSuccess` or `whenError`
 
 ```dart 
     final result = getSomethingPretty();
-    // notice that [whenSuccess] or [whenError] will only be executed if
-    // the result is a Success or an Error respectivaly. 
+    // Note that [whenSuccess] or [whenError] will only be executed if
+    // the result is a Success or an Error respectively. 
     final output = result.whenSuccess((name) {
         // handle here the success
         return "";
@@ -117,28 +106,28 @@ void main() {
     
     final result = getSomethingPretty();
     
-    // [result] is NOT an Error, this [output] will be null.
+    // If [result] is NOT an Error, this [output] will be null.
     final output = result.whenError((exception) {
         // handle here the error
         return "";
     });
 ```
 
-#### Handling the Result with `getOrThrow`
+#### Using `getOrThrow`
 
-You may use the `getOrThrow` to get the value when you're sure that the result was a `Success`.
-Be aware that accessing this method when the result is actually an `Error` will throw a `SuccessResultNotFoundException`.
+You can use `getOrThrow` to get the value when you're sure that the result is a `Success`.
+Be aware that calling this method when the result is actually an `Error` will throw a `SuccessResultNotFoundException`.
 
 ```dart
-    final result = getSomethingPretty();
+    final result = await getSomething();
 
     if (result.isSuccess()) {
+      // Here, you can "safely" get the success result as it was verified in the previous line.
       final mySuccessResult = result.getOrThrow();
     }
 ```
 
-
-#### Handling the Result with `tryGetSuccess`
+#### Using `tryGetSuccess`
 
 ```dart
 void main() {
@@ -149,11 +138,9 @@ void main() {
       mySuccessResult = result.tryGetSuccess();
     }
 }
-
 ```
 
-
-#### Handling the Result with `tryGetError`
+#### Using `tryGetError`
 
 ```dart
 void main() {
@@ -168,12 +155,12 @@ void main() {
 
 ## Unit Type
 
-Some results do not need a specific return. Use the Unit type to signal an empty return.
+Some results don't need a specific return value. Use the Unit type to signal an empty return:
 
 ```dart
     Result<Unit, Exception>
 ```
+
 ## ResultOf
 
-You may have noticed the `ResultOf` typedef. It represents a better readability for `Result`, but as 
-it would be another breaking change, leaving it as an alias would be good enough. 
+You may have noticed the `ResultOf` typedef. It represents a more readable alternative for `Result`.
