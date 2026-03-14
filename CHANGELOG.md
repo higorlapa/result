@@ -1,3 +1,18 @@
+## 5.3.0 03/14/2026
+
+### Bug Fixes
+* `Error.getOrThrow()` now correctly passes `<S, E>` to `SuccessResultNotFoundException`, so `toString()` shows the actual types instead of `dynamic`.
+
+### New Features
+* `Result.tryCatch(action, onError)` — static factory that wraps a potentially-throwing synchronous computation.
+* `getOrElse(orElse)` — returns the success value or a fallback computed from the error.
+* `onSuccess(action)` / `onError(action)` — side-effect tap methods that execute an action without transforming the result, returning `this` for chaining.
+* `flatMapError(mapper)` — symmetric counterpart to `flatMap` for the error channel.
+* `recover(mapper)` — alias for `flatMapError`.
+* `swap()` — converts `Success` to `Error` and vice versa.
+* `AsyncResult<S, E>` — zero-cost `Future<Result<S, E>>` wrapper via Dart extension types, with a full mirrored API (`mapSuccess`, `mapError`, `map`, `flatMap`, `flatMapAsync`, `flatMapError`, `swap`, `onSuccess`, `onError`, `getOrThrow`, `getOrElse`, `tryGetSuccess`, `tryGetError`, `when`, `isSuccess`, `isError`, and `tryCatch`).
+* `AsyncResultOf<S, E>` typedef alias for `AsyncResult<S, E>`.
+
 ## 5.2.0 04/29/2025
 
 * Improves README.md

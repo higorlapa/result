@@ -437,6 +437,8 @@ void main() {
       expect(value1, value2);
     });
   });
+
+  newMethodTests();
 }
 
 class MyUseCase {
@@ -472,4 +474,172 @@ class MyResult {
 
   @override
   bool operator ==(Object other) => other is MyResult && other.value == value;
+}
+
+// ── New method tests ─────────────────────────────────────────────────────────
+
+void newMethodTests() {
+  group('getOrElse', () {
+    test('returns success value on Success', () {
+      final result = Result<int, String>.success(42);
+      expect(result.getOrElse((_) => -1), 42);
+    });
+
+    test('returns fallback computed from error on Error', () {
+      final result = Result<int, String>.error('oops');
+      expect(result.getOrElse((e) => e.length), 4);
+    });
+
+    test('fallback is not called on Success', () {
+      bool called = false;
+      Result<int, String>.success(1).getOrElse((e) {
+        called = true;
+        return -1;
+      });
+      expect(called, isFalse);
+    });
+  });
+
+  group('onSuccess', () {
+    test('executes action and returns same instance on Success', () {
+      final result = Result<int, String>.success(10);
+      int? captured;
+      final returned = result.onSuccess((v) => captured = v);
+      expect(captured, 10);
+      expect(identical(returned, result), isTrue);
+    });
+
+    test('does not execute action and returns same instance on Error', () {
+      final result = Result<int, String>.error('err');
+      bool called = false;
+      final returned = result.onSuccess((_) => called = true);
+      expect(called, isFalse);
+      expect(identical(returned, result), isTrue);
+    });
+
+    test('can be chained', () {
+      final log = <String>[];
+      Result<String, int>.success('a')
+          .onSuccess((v) => log.add('first: $v'))
+          .onSuccess((v) => log.add('second: $v'));
+      expect(log, ['first: a', 'second: a']);
+    });
+  });
+
+  group('onError', () {
+    test('executes action and returns same instance on Error', () {
+      final result = Result<int, String>.error('bad');
+      String? captured;
+      final returned = result.onError((e) => captured = e);
+      expect(captured, 'bad');
+      expect(identical(returned, result), isTrue);
+    });
+
+    test('does not execute action and returns same instance on Success', () {
+      final result = Result<int, String>.success(1);
+      bool called = false;
+      final returned = result.onError((_) => called = true);
+      expect(called, isFalse);
+      expect(identical(returned, result), isTrue);
+    });
+  });
+
+  group('flatMapError / recover', () {
+    test('flatMapError transforms Error to new Result', () {
+      final result = Result<int, String>.error('not found');
+      final recovered =
+          result.flatMapError((e) => Result<int, int>.success(0));
+      expect(recovered, const Success<int, int>(0));
+    });
+
+    test('flatMapError is a no-op on Success', () {
+      final result = Result<int, String>.success(5);
+      bool called = false;
+      final out = result.flatMapError((e) {
+        called = true;
+        return Result<int, int>.success(0);
+      });
+      expect(called, isFalse);
+      expect(out, const Success<int, int>(5));
+    });
+
+    test('flatMapError can propagate a different error type', () {
+      final result = Result<int, String>.error('msg');
+      final out =
+          result.flatMapError((e) => Result<int, int>.error(e.length));
+      expect(out, const Error<int, int>(3));
+    });
+
+    test('recover is an alias for flatMapError', () {
+      final result = Result<int, String>.error('fail');
+      final out = result.recover((e) => Result<int, int>.success(99));
+      expect(out, const Success<int, int>(99));
+    });
+  });
+
+  group('swap', () {
+    test('Success becomes Error with the same value', () {
+      final result = Result<String, int>.success('hello');
+      final swapped = result.swap();
+      expect(swapped, isA<Error<int, String>>());
+      expect(swapped.tryGetError(), 'hello');
+    });
+
+    test('Error becomes Success with the same value', () {
+      final result = Result<String, int>.error(42);
+      final swapped = result.swap();
+      expect(swapped, isA<Success<int, String>>());
+      expect(swapped.tryGetSuccess(), 42);
+    });
+
+    test('double swap returns equivalent result', () {
+      final original = Result<String, int>.success('x');
+      expect(original.swap().swap(), const Success<String, int>('x'));
+    });
+  });
+
+  group('Result.tryCatch', () {
+    test('wraps a successful computation in Success', () {
+      final result = Result.tryCatch(
+        () => int.parse('42'),
+        (e, s) => 'parse error: $e',
+      );
+      expect(result, const Success<int, String>(42));
+    });
+
+    test('wraps a thrown exception in Error', () {
+      final result = Result.tryCatch(
+        () => int.parse('abc'),
+        (e, s) => 'failed',
+      );
+      expect(result, const Error<int, String>('failed'));
+    });
+
+    test('onError callback receives the exception and stack trace', () {
+      Object? caught;
+      StackTrace? caughtStack;
+      Result.tryCatch(
+        () => throw StateError('boom'),
+        (e, s) {
+          caught = e;
+          caughtStack = s;
+          return 'err';
+        },
+      );
+      expect(caught, isA<StateError>());
+      expect(caughtStack, isNotNull);
+    });
+  });
+
+  group('SuccessResultNotFoundException type parameters', () {
+    test('toString includes the actual success type', () {
+      final result = Result<String, int>.error(0);
+      try {
+        result.getOrThrow();
+        fail('Should have thrown');
+      } on SuccessResultNotFoundException<String, int> catch (e) {
+        expect(e.toString(), contains('String'));
+      }
+    });
+  });
 }

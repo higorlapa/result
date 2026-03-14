@@ -251,6 +251,91 @@ The key difference between `mapSuccess` and `flatMap`:
 - `mapSuccess` takes a function that returns a value `T` and wraps it in a Result
 - `flatMap` takes a function that returns a Result directly, avoiding nested Results
 
+### Using `Result.tryCatch`
+
+Replace try/catch blocks with `Result.tryCatch` to convert a throwing operation directly into a `Result`:
+
+```dart
+final result = Result.tryCatch(
+  () => int.parse(userInput),
+  (error, stackTrace) => ParseError(error.toString()),
+);
+// result is Success(42) or Error(ParseError(...))
+```
+
+### Using `getOrElse`
+
+Provide a fallback value computed from the error instead of throwing:
+
+```dart
+final value = result.getOrElse((error) => defaultValue);
+```
+
+### Using `onSuccess` / `onError`
+
+Run side effects (e.g. logging) in the middle of a chain without breaking it:
+
+```dart
+result
+    .onSuccess((data) => logger.info('Got $data'))
+    .onError((error) => logger.error('Failed: $error'))
+    .mapSuccess((data) => data.toUpperCase());
+```
+
+### Using `flatMapError` / `recover`
+
+Handle errors and recover into a new `Result`, symmetric to `flatMap`:
+
+```dart
+final result = fetchUser(id)
+    .flatMapError((e) => fetchUserFromCache(id));
+
+// or with the alias:
+final result = fetchUser(id)
+    .recover((e) => fetchUserFromCache(id));
+```
+
+### Using `swap`
+
+Convert a `Success` into an `Error` and vice versa — useful for inverting validation logic:
+
+```dart
+final inverted = result.swap();
+// Success('x') becomes Error('x'), Error(e) becomes Success(e)
+```
+
+## Async Results with `AsyncResult`
+
+`AsyncResult<S, E>` is a zero-cost wrapper around `Future<Result<S, E>>` using Dart extension types. It lets you chain transformations on async results fluently without awaiting at each step.
+
+```dart
+// Wrap a Future<Result> as AsyncResult
+AsyncResult<User, ApiError> fetchUser(int id) =>
+    AsyncResult(api.get('/users/$id').then((r) => r.toResult()));
+
+// Chain operations without intermediate awaits
+final greeting = await fetchUser(42)
+    .mapSuccess((user) => user.name.toUpperCase())
+    .onError((e) => logger.error('Failed: $e'))
+    .getOrElse((_) => 'Anonymous');
+```
+
+Use `AsyncResult.tryCatch` to wrap a potentially-throwing async function:
+
+```dart
+final result = AsyncResult.tryCatch(
+  () async => await api.fetchUser(id),
+  (error, stack) => NetworkError(error.toString()),
+);
+```
+
+Use `flatMapAsync` to chain operations that are themselves async:
+
+```dart
+final result = fetchUser(42)
+    .flatMapAsync((user) => fetchPosts(user.id));
+```
+
 ## Unit Type
 
 Some results don't need a specific return value. Use the Unit type to signal an empty return:

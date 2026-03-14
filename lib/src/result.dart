@@ -20,6 +20,30 @@ sealed class Result<S, E> {
   /// Creates a [Result] that represents a failed operation.
   const factory Result.error(E e) = Error;
 
+  /// Executes [action] and wraps the result.
+  ///
+  /// If [action] completes normally, returns [Success] with its return value.
+  /// If [action] throws, calls [onError] with the caught object and stack trace
+  /// and returns [Error] with the result.
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = Result.tryCatch(
+  ///   () => int.parse(input),
+  ///   (err, stack) => ParseFailure(err.toString()),
+  /// );
+  /// ```
+  static Result<S, E> tryCatch<S, E>(
+    S Function() action,
+    E Function(Object error, StackTrace stackTrace) onError,
+  ) {
+    try {
+      return Success<S, E>(action());
+    } catch (e, s) {
+      return Error<S, E>(onError(e, s));
+    }
+  }
+
   /// Gets the success value if this result is a [Success].
   ///
   /// Throws [SuccessResultNotFoundException] if this result is an [Error].
@@ -109,6 +133,37 @@ sealed class Result<S, E> {
   ///
   /// This method is useful for chaining operations that might fail without nesting results.
   Result<U, E> flatMap<U>(Result<U, E> Function(S success) mapper);
+
+  /// Returns the success value if this is [Success], otherwise calls [orElse]
+  /// with the error value and returns the result.
+  S getOrElse(S Function(E error) orElse);
+
+  /// Executes [action] as a side effect if this is a [Success], then returns
+  /// this result unchanged. Useful for logging or other side effects in a chain.
+  Result<S, E> onSuccess(void Function(S success) action);
+
+  /// Executes [action] as a side effect if this is an [Error], then returns
+  /// this result unchanged. Useful for logging or other side effects in a chain.
+  Result<S, E> onError(void Function(E error) action);
+
+  /// Transforms the error value of this result to another result.
+  ///
+  /// If this result is an [Error], applies [mapper] to the error to produce a
+  /// new result. If this result is a [Success], returns a new success result
+  /// carrying the same success value.
+  ///
+  /// This is the symmetric counterpart of [flatMap] for the error channel.
+  Result<S, F> flatMapError<F>(Result<S, F> Function(E error) mapper);
+
+  /// Alias for [flatMapError]. Recovers from an error by producing a new result.
+  Result<S, F> recover<F>(Result<S, F> Function(E error) mapper) =>
+      flatMapError(mapper);
+
+  /// Returns a new result with [Success] and [Error] swapped.
+  ///
+  /// A [Success] value becomes an [Error], and an [Error] value becomes a
+  /// [Success].
+  Result<E, S> swap();
 }
 
 /// Success Result.
@@ -196,6 +251,26 @@ final class Success<S, E> extends Result<S, E> {
   Result<U, E> flatMap<U>(Result<U, E> Function(S success) mapper) {
     return mapper(_success);
   }
+
+  @override
+  S getOrElse(S Function(E error) orElse) => _success;
+
+  @override
+  Result<S, E> onSuccess(void Function(S success) action) {
+    action(_success);
+    return this;
+  }
+
+  @override
+  Result<S, E> onError(void Function(E error) action) => this;
+
+  @override
+  Result<S, F> flatMapError<F>(Result<S, F> Function(E error) mapper) {
+    return Success<S, F>(_success);
+  }
+
+  @override
+  Result<E, S> swap() => Error<E, S>(_success);
 }
 
 /// Error Result.
@@ -238,7 +313,7 @@ final class Error<S, E> extends Result<S, E> {
       whenError(_error);
 
   @override
-  S getOrThrow() => throw SuccessResultNotFoundException();
+  S getOrThrow() => throw SuccessResultNotFoundException<S, E>();
 
   @override
   E tryGetError() => _error;
@@ -277,6 +352,26 @@ final class Error<S, E> extends Result<S, E> {
   Result<U, E> flatMap<U>(Result<U, E> Function(S success) mapper) {
     return Error<U, E>(_error);
   }
+
+  @override
+  S getOrElse(S Function(E error) orElse) => orElse(_error);
+
+  @override
+  Result<S, E> onSuccess(void Function(S success) action) => this;
+
+  @override
+  Result<S, E> onError(void Function(E error) action) {
+    action(_error);
+    return this;
+  }
+
+  @override
+  Result<S, F> flatMapError<F>(Result<S, F> Function(E error) mapper) {
+    return mapper(_error);
+  }
+
+  @override
+  Result<E, S> swap() => Success<E, S>(_error);
 }
 
 /// Exception thrown when attempting to access a success value that doesn't exist.
